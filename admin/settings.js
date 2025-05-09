@@ -1,8 +1,35 @@
+
+function showToast(message, success = true) {
+  const toast = document.createElement('div');
+  toast.textContent = message;
+  toast.className = `fixed top-4 right-4 z-50 px-4 py-2 text-sm rounded shadow transition-opacity ${
+    success ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
+  }`;
+  document.body.appendChild(toast);
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    setTimeout(() => toast.remove(), 400);
+  }, 2000);
+}
+
+function toggleLoading(show = true) {
+  let loader = document.getElementById('page-loader');
+  if (!loader) {
+    loader = document.createElement('div');
+    loader.id = 'page-loader';
+    loader.className = 'fixed inset-0 bg-white bg-opacity-50 flex items-center justify-center z-40';
+    loader.innerHTML = '<div class="animate-spin rounded-full h-10 w-10 border-t-4 border-red-600"></div>';
+    document.body.appendChild(loader);
+  }
+  loader.style.display = show ? 'flex' : 'none';
+}
 let selectedCompany = '';
 
 document.getElementById('company-select').addEventListener('change', async (e) => {
   selectedCompany = e.target.value;
+  toggleLoading(true);
   await loadSettings();
+  toggleLoading(false);
 });
 
 async function createCompany() {
@@ -17,16 +44,18 @@ async function createCompany() {
   });
 
   if (res.ok) {
-    alert(`✅ ${name} created!`);
+    showToast(`✅ ${name} created!`);
     const option = new Option(name, name);
     document.getElementById('company-select').add(option);
     document.getElementById('company-select').value = name;
     selectedCompany = name;
-    await loadSettings();
+    toggleLoading(true);
+  await loadSettings();
+  toggleLoading(false);
     input.value = '';
   } else {
     const { error } = await res.json();
-    alert(`❌ ${error}`);
+    showToast(`❌ ${error}`, false);
   }
 }
 
@@ -173,7 +202,7 @@ async function saveSettings() {
     body: JSON.stringify(newConfig)
   });
 
-  alert(res.ok ? "✅ Settings saved!" : "❌ Failed to save settings.");
+  showToast(res.ok ? "✅ Settings saved!" : "❌ Failed to save settings.", res.ok);
 }
 
 window.onload = async () => {
@@ -181,5 +210,7 @@ window.onload = async () => {
   const option = new Option(selectedCompany, selectedCompany);
   document.getElementById('company-select').add(option);
   document.getElementById('company-select').value = selectedCompany;
+  toggleLoading(true);
   await loadSettings();
+  toggleLoading(false);
 };
