@@ -3,24 +3,40 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Solomon Admin Portal</title>
+  <title>VeraLux Admin Portal</title>
   <link rel="stylesheet" href="admin.css" />
 </head>
 <body>
-  <h1>Solomon Admin Portal</h1>
+  <h1>VeraLux Admin Portal</h1>
+
+  <div class="section-card">
+    <h2>➕ Add New Company</h2>
+    <input id="new-company-name" placeholder="e.g. brightbuild" />
+    <button onclick="createCompany()">➕ Create Company</button>
+  </div>
+
+  <div class="section-card">
+    <h2>🏢 Select Company</h2>
+    <select id="company-select"></select>
+  </div>
+
   <div class="section-card">
     <h2>🔧 Toggles</h2>
     <div id="toggle-group"></div>
   </div>
+
   <div class="section-card">
     <h2>📋 Required Fields</h2>
     <div id="list-group"></div>
   </div>
+
   <div class="section-card">
     <h2>🤖 AI Prompts</h2>
     <div id="textarea-group"></div>
   </div>
+
   <button onclick="saveSettings()">💾 Save Settings</button>
+
   <script src="settings.js"></script>
 </body>
 </html>
