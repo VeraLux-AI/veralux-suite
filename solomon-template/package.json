@@ -1,0 +1,23 @@
+{
+  "name": "contact-solomon",
+  "version": "1.0.0",
+  "description": "Modular Contact Solomon Backend",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "@swc/helpers": "^0.5.17",
+    "body-parser": "^1.20.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "googleapis": "^105.0.0",
+    "iconv-lite": "^0.6.3",
+    "multer": "^1.4.5-lts.1",
+    "nodemailer": "^6.9.1",
+    "openai": "^4.17.1",
+    "pdf-lib": "^1.17.1",
+    "stripe": "^18.1.0"
+  }
+}
