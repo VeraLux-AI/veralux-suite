@@ -1,0 +1,17 @@
+{
+  "name": "veralux-suite",
+  "version": "1.0.0",
+  "description": "The VeraLux Suite is the central control portal for all VeraLux-powered AI systems — including Solomon, branded admin portals, licensing control, and AI workflow orchestration.",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0"
+  }
+}
