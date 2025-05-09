@@ -37,13 +37,24 @@ async function loadSettings() {
   const res = await fetch(`/admin/${selectedCompany}/settings.json`);
   configData = await res.json();
 
-  document.getElementById('toggle-group').innerHTML = '';
-  document.getElementById('list-group').innerHTML = '';
-  document.getElementById('textarea-group').innerHTML = '';
+  renderSection('toggle-group', '🔧 Toggles', renderToggles);
+  renderSection('list-group', '📋 Required Fields', renderLists);
+  renderSection('textarea-group', '🤖 AI Prompts', renderTextareas);
+}
 
-  renderToggles(configData, document.getElementById('toggle-group'));
-  renderLists(configData, document.getElementById('list-group'));
-  renderTextareas(configData, document.getElementById('textarea-group'));
+function renderSection(containerId, title, renderFn) {
+  const container = document.getElementById(containerId);
+  container.innerHTML = '';
+  const card = document.createElement('div');
+  card.className = 'bg-gray-50 border border-gray-200 rounded-lg p-4 space-y-4';
+
+  const header = document.createElement('h3');
+  header.className = 'text-lg font-semibold text-red-700';
+  header.textContent = title;
+  card.appendChild(header);
+
+  renderFn(configData, card);
+  container.appendChild(card);
 }
 
 function renderToggles(data, container) {
@@ -51,14 +62,20 @@ function renderToggles(data, container) {
     const setting = data[key];
     if (setting.type === 'toggle') {
       const wrapper = document.createElement('div');
-      const label = document.createElement('label');
+      wrapper.className = 'flex items-center justify-between';
+
+      const label = document.createElement('span');
+      label.textContent = setting.label;
+      label.className = 'text-sm text-gray-700';
+
       const input = document.createElement('input');
       input.type = 'checkbox';
       input.checked = setting.enabled;
       input.id = key;
-      label.appendChild(input);
-      label.appendChild(document.createTextNode(" " + setting.label));
+      input.className = 'w-5 h-5 text-red-600 focus:ring-red-500 border-gray-300 rounded';
+
       wrapper.appendChild(label);
+      wrapper.appendChild(input);
       container.appendChild(wrapper);
     }
   }
@@ -69,17 +86,22 @@ function renderLists(data, container) {
     const setting = data[key];
     if (setting.type === 'list') {
       const wrapper = document.createElement('div');
+      wrapper.className = 'space-y-2';
+
       const label = document.createElement('label');
       label.innerText = setting.label;
+      label.className = 'text-sm text-gray-700 font-medium block';
+
       const list = document.createElement('ul');
       list.id = `${key}-list`;
+      list.className = 'space-y-2';
 
       (setting.value || []).forEach(item => {
         const li = document.createElement('li');
         const input = document.createElement('input');
         input.type = 'text';
         input.value = item;
-        input.className = 'list-input';
+        input.className = 'w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none';
         li.appendChild(input);
         list.appendChild(li);
       });
@@ -87,11 +109,12 @@ function renderLists(data, container) {
       const addBtn = document.createElement('button');
       addBtn.innerText = '+ Add';
       addBtn.type = 'button';
+      addBtn.className = 'mt-2 text-sm text-red-600 hover:underline';
       addBtn.onclick = () => {
         const li = document.createElement('li');
         const input = document.createElement('input');
         input.type = 'text';
-        input.className = 'list-input';
+        input.className = 'w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none';
         li.appendChild(input);
         list.appendChild(li);
       };
@@ -108,13 +131,21 @@ function renderTextareas(data, container) {
   for (const key in data) {
     const setting = data[key];
     if (setting.type === 'textarea') {
+      const wrapper = document.createElement('div');
+      wrapper.className = 'space-y-1';
+
       const label = document.createElement('label');
       label.innerText = setting.label;
+      label.className = 'text-sm text-gray-700 font-medium block';
+
       const textarea = document.createElement('textarea');
       textarea.id = key;
       textarea.value = setting.value || '';
-      container.appendChild(label);
-      container.appendChild(textarea);
+      textarea.className = 'w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none';
+      
+      wrapper.appendChild(label);
+      wrapper.appendChild(textarea);
+      container.appendChild(wrapper);
     }
   }
 }
