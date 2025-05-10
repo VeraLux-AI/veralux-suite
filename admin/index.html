@@ -5,94 +5,99 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>VeraLux Admin Portal</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      background: linear-gradient(to bottom right, #fefefe, #f7f4eb);
+    }
+  </style>
 </head>
-<body class="bg-gray-100 text-gray-800 font-sans">
+<body class="text-gray-800 font-sans min-h-screen">
 
-  <header class="bg-white shadow p-4">
-    <h1 class="text-2xl font-bold text-red-700">VeraLux Admin Portal</h1>
+  <header class="bg-white shadow p-6">
+    <h1 class="text-3xl font-bold text-yellow-600 text-center tracking-wide">VeraLux Admin Portal</h1>
+    <p class="text-center text-sm text-gray-500">AI Licensing & Client Controls</p>
   </header>
 
-  <main class="max-w-4xl mx-auto p-6 space-y-8">
+  <main class="max-w-5xl mx-auto p-6 space-y-10">
 
     <!-- Add Company -->
-    <section class="bg-white rounded-lg shadow p-6">
-      <h2 class="text-xl font-semibold mb-4">➕ Add New Company</h2>
+    <section class="bg-white rounded-xl shadow p-6">
+      <h2 class="text-2xl font-semibold mb-4 text-yellow-600">➕ Add New Company</h2>
       <div class="flex gap-4">
         <input id="new-company-name" placeholder="e.g. brightbuild"
-               class="flex-1 px-4 py-2 border rounded focus:outline-none focus:ring" />
+               class="flex-1 px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-yellow-400" />
         <button onclick="createCompany()"
-                class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition">➕ Create</button>
+                class="bg-yellow-500 text-white px-6 py-2 rounded hover:bg-yellow-600 transition">➕ Create</button>
       </div>
     </section>
 
     <!-- Select Company -->
-    <section class="bg-white rounded-lg shadow p-6">
-      <h2 class="text-xl font-semibold mb-4">🏢 Select Company</h2>
-      <select id="company-select" class="w-full border px-3 py-2 rounded"></select>
+    <section class="bg-white rounded-xl shadow p-6">
+      <h2 class="text-2xl font-semibold mb-4 text-yellow-600">🏢 Select Company</h2>
+      <select id="company-select" class="w-full border px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-yellow-400"></select>
 
-      <button onclick="provisionCompany()" class="mt-4 w-full bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700">
+      <button onclick="provisionCompany()"
+              class="mt-4 w-full bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 transition">
         ⚙️ Provision Solomon
       </button>
     </section>
 
     <!-- Settings -->
-    <section class="bg-white rounded-lg shadow p-6 space-y-6">
-      <h2 class="text-xl font-semibold mb-4">🔧 Settings</h2>
+    <section class="bg-white rounded-xl shadow p-6 space-y-6">
+      <h2 class="text-2xl font-semibold mb-4 text-yellow-600">🔧 Client Settings</h2>
       <div id="toggle-group" class="space-y-4"></div>
       <div id="list-group" class="space-y-4"></div>
       <div id="textarea-group" class="space-y-4"></div>
       <div class="pt-4">
         <button onclick="saveSettings()"
-                class="bg-red-600 text-white px-6 py-2 rounded hover:bg-red-700 transition">💾 Save Settings</button>
+                class="bg-yellow-600 text-white px-6 py-2 rounded hover:bg-yellow-700 transition">💾 Save Settings</button>
       </div>
     </section>
 
-   <!-- AI Prompt Generator -->
-<section class="bg-white rounded-lg shadow p-6 space-y-4">
-  <h2 class="text-xl font-semibold text-indigo-700">🤖 Generate AI Prompts</h2>
+    <!-- AI Prompt Generator -->
+    <section class="bg-white rounded-xl shadow p-6 space-y-6">
+      <h2 class="text-2xl font-semibold text-yellow-600">🤖 Generate AI Prompts</h2>
 
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-    <input id="prompt-purpose" placeholder="What should the AI do?"
-           class="col-span-1 md:col-span-1 border px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-indigo-300" />
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <input id="prompt-purpose" placeholder="What should the AI do?"
+               class="col-span-1 border px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-yellow-400" />
+        <input id="prompt-business" placeholder="e.g. roofing contractor"
+               class="col-span-1 border px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-yellow-400" />
+        <input id="prompt-tone" placeholder="Tone (optional, e.g. friendly)"
+               class="col-span-1 border px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-yellow-400" />
+      </div>
 
-    <input id="prompt-business" placeholder="e.g. roofing contractor"
-           class="col-span-1 md:col-span-1 border px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-indigo-300" />
+      <div class="flex gap-4 flex-col sm:flex-row">
+        <button onclick="generatePrompt()"
+                class="bg-yellow-500 text-white px-6 py-2 rounded hover:bg-yellow-600 transition w-full sm:w-auto">
+          ✨ Generate Prompts
+        </button>
+        <button onclick="saveGeneratedPrompt()"
+                class="bg-yellow-700 text-white px-6 py-2 rounded hover:bg-yellow-800 transition w-full sm:w-auto">
+          💾 Save to Settings
+        </button>
+      </div>
 
-    <input id="prompt-tone" placeholder="Tone (optional, e.g. friendly)"
-           class="col-span-1 md:col-span-1 border px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-indigo-300" />
-  </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Chat Responder Prompt</label>
+          <textarea id="prompt-output-chat" rows="6"
+                    class="w-full border px-3 py-2 rounded font-mono text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                    placeholder="Generated prompt for how the AI should talk..."></textarea>
+        </div>
 
-  <div class="flex gap-4">
-    <button onclick="generatePrompt()"
-            class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition w-full md:w-auto">
-      ✨ Generate Prompts
-    </button>
-    <button onclick="saveGeneratedPrompt()"
-            class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition w-full md:w-auto">
-      💾 Save to Settings
-    </button>
-  </div>
-
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-    <div>
-      <label class="block text-sm font-medium text-gray-700 mb-1">Chat Responder Prompt</label>
-      <textarea id="prompt-output-chat" rows="6"
-                class="w-full border px-3 py-2 rounded font-mono text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"
-                placeholder="Generated prompt for how the AI should talk..."></textarea>
-    </div>
-
-    <div>
-      <label class="block text-sm font-medium text-gray-700 mb-1">Intake Extractor Prompt</label>
-      <textarea id="prompt-output-extract" rows="6"
-                class="w-full border px-3 py-2 rounded font-mono text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"
-                placeholder="Generated prompt for how the AI extracts fields from text..."></textarea>
-    </div>
-  </div>
-</section>
-
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Intake Extractor Prompt</label>
+          <textarea id="prompt-output-extract" rows="6"
+                    class="w-full border px-3 py-2 rounded font-mono text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                    placeholder="Generated prompt for how the AI extracts fields..."></textarea>
+        </div>
+      </div>
+    </section>
 
   </main>
 
   <script src="settings.js"></script>
 </body>
 </html>
+
