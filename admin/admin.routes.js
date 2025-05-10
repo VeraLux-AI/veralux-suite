@@ -2,6 +2,7 @@ const express = require('express');
 const path = require('path');
 const fs = require('fs');
 const { exec } = require('child_process');
+const axios = require('axios');
 const router = express.Router();
 
 const CONFIG_PATH = (company) => path.join(__dirname, company, 'settings.json');
@@ -149,6 +150,38 @@ Return the result as JSON like:
     res.status(500).json({ error: "Failed to generate prompts" });
   }
 });
+
+async function deploySolomonInstance(company) {
+  const renderAPI = 'https://api.render.com/v1/services';
+  const apiKey = process.env.RENDER_API_KEY;
+  const serviceId = process.env.RENDER_SOLOMON_SERVICE_ID; // Add this to your .env
+
+  const response = await axios.post(
+    'https://api.render.com/v1/services/srv-cvva0v0dl3ps739foekg/deploys',
+    {},
+    {
+       headers: {
+         Authorization: `Bearer ${apiKey}`,
+         'Content-Type': 'application/json',
+       }
+     }
+  );
+
+
+  return response.data;
+}
+
+router.post('/deploy-company', async (req, res) => {
+  const { company } = req.body;
+  try {
+    const result = await deploySolomonInstance(company);
+    res.status(200).json({ success: true, deployment: result });
+  } catch (err) {
+    console.error("❌ Render deploy error:", err.message);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
 
 
 

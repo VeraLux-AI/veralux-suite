@@ -39,6 +39,8 @@ app.post('/login', (req, res) => {
     res.send('<p>Incorrect password. <a href="/login">Try again</a></p>');
   }
 });
+const adminRoutes = require('./admin/admin.routes');
+app.use('/admin', adminRoutes);
 
 // 🔐 Protect /admin with middleware
 app.use('/admin', requireLogin, express.static(path.join(__dirname, 'admin')));
