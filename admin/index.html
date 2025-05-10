@@ -27,10 +27,14 @@
 
     <!-- Select Company -->
     <section class="bg-white rounded-lg shadow p-6">
-      <h2 class="text-xl font-semibold mb-4">🏢 Select Company</h2>
-      <select id="company-select"
-              class="w-full px-4 py-2 border rounded focus:outline-none focus:ring">
-      </select>
+      <div class="section-card">
+        <h2>🏢 Select Company</h2>
+        <select id="company-select" class="w-full border px-3 py-2 rounded"></select>
+
+        <button onclick="provisionCompany()" class="mt-4 w-full bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700">
+          ⚙️ Provision Solomon
+        </button>
+      </div>
     </section>
 
     <!-- Settings -->
