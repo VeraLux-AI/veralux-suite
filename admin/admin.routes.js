@@ -97,8 +97,7 @@ router.post('/provision-company', (req, res) => {
 });
 
 // 🧠 Generate AI Prompt (chatResponderPrompt or intakeExtractorPrompt)
-const { OpenAI } = require("openai");
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+const { generatePrompts } = require('./ai/promptGenerator');
 
 router.post('/generate-prompt', async (req, res) => {
   const { purpose, business, tone } = req.body;
