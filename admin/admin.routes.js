@@ -109,9 +109,7 @@ router.post('/generate-prompt', async (req, res) => {
   try {
     const systemMessage = {
       role: 'system',
-      content: `You are an expert AI prompt engineer. Create two distinct prompts:
-1. "chatResponderPrompt" — a helpful, friendly assistant that guides a user through a conversational intake.
-2. "intakeExtractorPrompt" — a structured prompt that extracts data fields in JSON format from the conversation.`
+      content: `You are an expert AI prompt engineer. Generate a single prompt for a helpful assistant that uses friendly, professional language to guide users through a conversational intake experience. Do NOT generate extraction or technical instructions.`
     };
 
     const userMessage = {
@@ -121,11 +119,8 @@ Company type: ${business}
 AI purpose: ${purpose}
 Tone: ${tone || 'Professional and clear'}
 
-Return the result as JSON like:
-{
-  "chatResponderPrompt": "...",
-  "intakeExtractorPrompt": "..."
-}`
+Respond with only the prompt text. No JSON, no keys.
+`
     };
 
     const completion = await openai.chat.completions.create({
@@ -135,21 +130,20 @@ Return the result as JSON like:
     });
 
     const raw = completion.choices[0].message.content.trim();
-    const parsed = JSON.parse(raw);
 
     res.json({
       success: true,
       prompts: {
-        chatResponderPrompt: parsed.chatResponderPrompt,
-        intakeExtractorPrompt: parsed.intakeExtractorPrompt
+        chatResponderPrompt: raw
       }
     });
 
   } catch (err) {
     console.error("❌ Prompt generation error:", err.message);
-    res.status(500).json({ error: "Failed to generate prompts" });
+    res.status(500).json({ error: "Failed to generate prompt" });
   }
 });
+
 
 async function deploySolomonInstance(company) {
   const renderAPI = 'https://api.render.com/v1/services';
