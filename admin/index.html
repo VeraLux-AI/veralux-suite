@@ -11,6 +11,33 @@
   <header class="bg-white shadow p-4">
     <h1 class="text-2xl font-bold text-red-700">VeraLux Admin Portal</h1>
   </header>
+<!-- AI Prompt Generator -->
+<section class="bg-white rounded-lg shadow p-6 space-y-4">
+  <h2 class="text-xl font-semibold">🤖 Generate AI Prompt</h2>
+
+  <input id="prompt-purpose" placeholder="What should the AI do?"
+         class="w-full border px-3 py-2 rounded focus:outline-none" />
+
+  <input id="prompt-business" placeholder="e.g. garage remodeler"
+         class="w-full border px-3 py-2 rounded focus:outline-none" />
+
+  <input id="prompt-tone" placeholder="Tone (optional, e.g. friendly)"
+         class="w-full border px-3 py-2 rounded focus:outline-none" />
+
+  <button onclick="generatePrompt()"
+          class="w-full bg-indigo-600 text-white py-2 rounded hover:bg-indigo-700 transition">
+    ✨ Generate Prompt
+  </button>
+
+  <textarea id="prompt-output" rows="6"
+            class="w-full border px-3 py-2 rounded font-mono"
+            placeholder="Generated prompt will appear here..."></textarea>
+
+  <button onclick="saveGeneratedPrompt()"
+          class="w-full bg-red-600 text-white py-2 rounded hover:bg-red-700 transition">
+    💾 Save to Chat Responder
+  </button>
+</section>
 
   <main class="max-w-4xl mx-auto p-6 space-y-8">
 
