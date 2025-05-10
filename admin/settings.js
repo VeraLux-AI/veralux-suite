@@ -353,3 +353,52 @@ function saveGeneratedPrompt() {
   showToast("✅ Prompts saved to settings!");
 }
 
+async function uploadLogo() {
+  const input = document.getElementById('logo-upload');
+  const file = input.files[0];
+  if (!file) {
+    showToast("❌ No file selected", false);
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append('logo', file);
+  formData.append('company', selectedCompany);
+
+  toggleLoading(true);
+  try {
+    const res = await fetch('/admin/upload-logo', {
+      method: 'POST',
+      body: formData
+    });
+
+    const result = await res.json();
+    toggleLoading(false);
+
+    if (res.ok && result.colors) {
+      document.getElementById('logo-preview').classList.remove('hidden');
+      document.getElementById('uploaded-logo-img').src = result.logoUrl;
+      document.getElementById('color-results').classList.remove('hidden');
+
+      const swatchContainer = document.getElementById('color-swatches');
+      swatchContainer.innerHTML = '';
+      result.colors.forEach(hex => {
+        const swatch = document.createElement('div');
+        swatch.style.backgroundColor = hex;
+        swatch.className = 'w-8 h-8 rounded border';
+        swatch.title = hex;
+        swatchContainer.appendChild(swatch);
+      });
+
+      showToast("✅ Colors extracted from logo!");
+    } else {
+      showToast("❌ Failed to extract colors", false);
+    }
+  } catch (err) {
+    toggleLoading(false);
+    console.error(err);
+    showToast("❌ Error uploading logo", false);
+  }
+}
+
+
