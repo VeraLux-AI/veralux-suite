@@ -96,5 +96,40 @@ router.post('/provision-company', (req, res) => {
   });
 });
 
+// 🧠 Generate AI Prompt (chatResponderPrompt or intakeExtractorPrompt)
+const { OpenAI } = require('openai');
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+router.post('/generate-prompt', async (req, res) => {
+  const { purpose, businessType, tone } = req.body;
+
+  if (!purpose || !businessType) {
+    return res.status(400).json({ error: 'Missing required fields.' });
+  }
+
+  const systemInstruction = `
+You are a prompt engineer. Generate a clean, effective system prompt for an AI assistant.
+It should be used to ${purpose} for a business type of "${businessType}".
+Make sure it is aligned with the tone: ${tone || 'professional and friendly'}.
+Respond with just the prompt text, no explanations.
+`;
+
+  try {
+    const chat = await openai.chat.completions.create({
+      model: "gpt-4",
+      messages: [{ role: "system", content: systemInstruction }]
+    });
+
+    const generatedPrompt = chat.choices?.[0]?.message?.content?.trim();
+    if (!generatedPrompt) throw new Error("No prompt returned.");
+
+    res.json({ prompt: generatedPrompt });
+  } catch (err) {
+    console.error("❌ Prompt generation failed:", err.message);
+    res.status(500).json({ error: "Prompt generation failed." });
+  }
+});
+
+
 module.exports = router;
 
