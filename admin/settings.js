@@ -214,3 +214,32 @@ window.onload = async () => {
   await loadSettings();
   toggleLoading(false);
 };
+
+async function provisionCompany() {
+  if (!selectedCompany) return showToast("❌ No company selected", false);
+
+  try {
+    toggleLoading(true);
+    const res = await fetch('/admin/provision-company', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ company: selectedCompany })
+    });
+
+    const result = await res.json();
+    toggleLoading(false);
+
+    if (result.success) {
+      showToast("✅ Provisioned Solomon for " + selectedCompany);
+      console.log(result.output);
+    } else {
+      showToast("❌ Provisioning failed", false);
+      console.error(result.error);
+    }
+  } catch (err) {
+    toggleLoading(false);
+    showToast("❌ Provisioning error", false);
+    console.error(err);
+  }
+}
+
