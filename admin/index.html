@@ -47,33 +47,49 @@
       </div>
     </section>
 
-    <!-- AI Prompt Generator -->
-    <section class="bg-white rounded-lg shadow p-6 space-y-4">
-      <h2 class="text-xl font-semibold">🤖 Generate AI Prompt</h2>
+   <!-- AI Prompt Generator -->
+<section class="bg-white rounded-lg shadow p-6 space-y-4">
+  <h2 class="text-xl font-semibold text-indigo-700">🤖 Generate AI Prompts</h2>
 
-      <input id="prompt-purpose" placeholder="What should the AI do?"
-             class="w-full border px-3 py-2 rounded focus:outline-none" />
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <input id="prompt-purpose" placeholder="What should the AI do?"
+           class="col-span-1 md:col-span-1 border px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-indigo-300" />
 
-      <input id="prompt-business" placeholder="e.g. garage remodeler"
-             class="w-full border px-3 py-2 rounded focus:outline-none" />
+    <input id="prompt-business" placeholder="e.g. roofing contractor"
+           class="col-span-1 md:col-span-1 border px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-indigo-300" />
 
-      <input id="prompt-tone" placeholder="Tone (optional, e.g. friendly)"
-             class="w-full border px-3 py-2 rounded focus:outline-none" />
+    <input id="prompt-tone" placeholder="Tone (optional, e.g. friendly)"
+           class="col-span-1 md:col-span-1 border px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-indigo-300" />
+  </div>
 
-      <button onclick="generatePrompt()"
-              class="w-full bg-indigo-600 text-white py-2 rounded hover:bg-indigo-700 transition">
-        ✨ Generate Prompt
-      </button>
+  <div class="flex gap-4">
+    <button onclick="generatePrompt()"
+            class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition w-full md:w-auto">
+      ✨ Generate Prompts
+    </button>
+    <button onclick="saveGeneratedPrompt()"
+            class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition w-full md:w-auto">
+      💾 Save to Settings
+    </button>
+  </div>
 
-      <textarea id="prompt-output" rows="6"
-                class="w-full border px-3 py-2 rounded font-mono"
-                placeholder="Generated prompt will appear here..."></textarea>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div>
+      <label class="block text-sm font-medium text-gray-700 mb-1">Chat Responder Prompt</label>
+      <textarea id="prompt-output-chat" rows="6"
+                class="w-full border px-3 py-2 rounded font-mono text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"
+                placeholder="Generated prompt for how the AI should talk..."></textarea>
+    </div>
 
-      <button onclick="saveGeneratedPrompt()"
-              class="w-full bg-red-600 text-white py-2 rounded hover:bg-red-700 transition">
-        💾 Save to Chat Responder
-      </button>
-    </section>
+    <div>
+      <label class="block text-sm font-medium text-gray-700 mb-1">Intake Extractor Prompt</label>
+      <textarea id="prompt-output-extract" rows="6"
+                class="w-full border px-3 py-2 rounded font-mono text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"
+                placeholder="Generated prompt for how the AI extracts fields from text..."></textarea>
+    </div>
+  </div>
+</section>
+
 
   </main>
 
