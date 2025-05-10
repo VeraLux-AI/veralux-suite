@@ -1,0 +1,23 @@
+{
+    "photoUpload": {
+      "type": "toggle",
+      "label": "Enable Photo Upload",
+      "enabled": true
+    },
+    "summaryDownload": {
+      "type": "toggle",
+      "label": "Enable Summary Download",
+      "enabled": true
+    },
+    "requiredFields": {
+      "type": "list",
+      "label": "Required Intake Fields",
+      "value": ["full_name", "email", "phone"]
+    },
+    "chatResponderPrompt": {
+      "type": "textarea",
+      "label": "Chat Responder Prompt",
+      "value": "You are Solomon..."
+    }
+  }
+  
