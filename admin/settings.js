@@ -125,9 +125,11 @@ function renderLists(data, container) {
       list.id = `${key}-list`;
       list.className = 'space-y-2';
 
+      const sourceMap = configData.sourceMap || {}; // <— Used to label AI/manual origin
+
       (setting.value || []).forEach(item => {
         const li = document.createElement('li');
-        li.className = 'flex gap-2';
+        li.className = 'flex gap-2 items-center';
 
         const input = document.createElement('input');
         input.type = 'text';
@@ -140,7 +142,19 @@ function renderLists(data, container) {
         delBtn.className = 'text-red-600 text-sm';
         delBtn.onclick = () => li.remove();
 
+        const tag = document.createElement('span');
+        tag.className = 'text-xs px-2 py-1 rounded font-medium';
+        const source = sourceMap[item] || 'Manual';
+        if (source === 'AI') {
+          tag.innerText = '🧠 AI';
+          tag.classList.add('bg-blue-100', 'text-blue-600');
+        } else {
+          tag.innerText = '✍️ Manual';
+          tag.classList.add('bg-yellow-100', 'text-yellow-700');
+        }
+
         li.appendChild(input);
+        li.appendChild(tag);
         li.appendChild(delBtn);
         list.appendChild(li);
       });
@@ -151,11 +165,15 @@ function renderLists(data, container) {
       addBtn.className = 'mt-2 text-sm text-red-600 hover:underline';
       addBtn.onclick = () => {
         const li = document.createElement('li');
-        li.className = 'flex gap-2';
+        li.className = 'flex gap-2 items-center';
 
         const input = document.createElement('input');
         input.type = 'text';
         input.className = 'w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none';
+
+        const tag = document.createElement('span');
+        tag.innerText = '✍️ Manual';
+        tag.className = 'text-xs px-2 py-1 rounded font-medium bg-yellow-100 text-yellow-700';
 
         const delBtn = document.createElement('button');
         delBtn.innerText = '❌';
@@ -164,6 +182,7 @@ function renderLists(data, container) {
         delBtn.onclick = () => li.remove();
 
         li.appendChild(input);
+        li.appendChild(tag);
         li.appendChild(delBtn);
         list.appendChild(li);
       };
