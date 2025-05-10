@@ -294,28 +294,43 @@ async function generatePrompt() {
     const result = await res.json();
     toggleLoading(false);
 
-    if (res.ok && result.prompt) {
-      document.getElementById('prompt-output').value = result.prompt;
-      showToast("✅ Prompt generated!");
+    if (res.ok && result.success && result.prompts) {
+      const chatPrompt = result.prompts.chatResponderPrompt || '';
+      const extractPrompt = result.prompts.intakeExtractorPrompt || '';
+
+      document.getElementById('prompt-output-chat').value = chatPrompt;
+      document.getElementById('prompt-output-extract').value = extractPrompt;
+
+      showToast("✅ Prompts generated!");
     } else {
-      showToast("❌ Failed to generate prompt", false);
+      showToast("❌ Failed to generate prompts", false);
     }
   } catch (err) {
     toggleLoading(false);
-    showToast("❌ Error generating prompt", false);
+    showToast("❌ Error generating prompts", false);
     console.error(err);
   }
 }
 
 function saveGeneratedPrompt() {
-  const prompt = document.getElementById('prompt-output').value.trim();
-  if (!prompt) {
-    showToast("❌ No prompt to save", false);
+  const chatPrompt = document.getElementById('prompt-output-chat')?.value.trim();
+  const extractPrompt = document.getElementById('prompt-output-extract')?.value.trim();
+
+  if (!chatPrompt || !extractPrompt) {
+    showToast("❌ Both prompts must be filled in", false);
     return;
   }
 
-  const key = "chatResponderPrompt";
-  configData[key].value = prompt;
-  document.getElementById(key).value = prompt;
-  showToast("✅ Prompt saved to Chat Responder!");
+  if (configData.chatResponderPrompt) {
+    configData.chatResponderPrompt.value = chatPrompt;
+    document.getElementById('chatResponderPrompt').value = chatPrompt;
+  }
+
+  if (configData.intakeExtractorPrompt) {
+    configData.intakeExtractorPrompt.value = extractPrompt;
+    document.getElementById('intakeExtractorPrompt').value = extractPrompt;
+  }
+
+  showToast("✅ Prompts saved to settings!");
 }
+
