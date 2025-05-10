@@ -102,47 +102,51 @@ const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 router.post('/generate-prompt', async (req, res) => {
   const { purpose, business, tone } = req.body;
+  const company = req.session?.company || req.body.company;
+
   if (!purpose || !business) {
-    return res.status(400).json({ error: 'Missing fields' });
+    return res.status(400).json({ success: false, error: "Missing purpose or business." });
   }
 
   try {
-    const systemMessage = {
-      role: 'system',
-      content: `You are an expert AI prompt engineer. Generate a single prompt for a helpful assistant that uses friendly, professional language to guide users through a conversational intake experience. Do NOT generate extraction or technical instructions.`
+    const prompts = await generatePrompts(purpose, business, tone);
+    const guessedFields = await guessRequiredFields(prompts.chatResponderPrompt); // or from `purpose`, etc.
+
+    const settings = {
+      chatResponderPrompt: {
+        type: "textarea",
+        label: "Chat Responder Prompt",
+        value: prompts.chatResponderPrompt
+      },
+      intakeExtractorPrompt: {
+        type: "textarea",
+        label: "Intake Extractor Prompt",
+        value: prompts.intakeExtractorPrompt
+      },
+      requiredFields: {
+        type: "list",
+        label: "Required Intake Fields",
+        value: guessedFields
+      },
+      sourceMap: {}
     };
 
-    const userMessage = {
-      role: 'user',
-      content: `
-Company type: ${business}
-AI purpose: ${purpose}
-Tone: ${tone || 'Professional and clear'}
-
-Respond with only the prompt text. No JSON, no keys.
-`
-    };
-
-    const completion = await openai.chat.completions.create({
-      model: 'gpt-4',
-      messages: [systemMessage, userMessage],
-      temperature: 0.7
+    // 👇 Add this block right here
+    guessedFields.forEach(field => {
+      settings.sourceMap[field] = "AI";
     });
 
-    const raw = completion.choices[0].message.content.trim();
+    // Save new config to file
+    const filePath = path.join(__dirname, '..', company, 'settings.json');
+    fs.writeFileSync(filePath, JSON.stringify(settings, null, 2));
 
-    res.json({
-      success: true,
-      prompts: {
-        chatResponderPrompt: raw
-      }
-    });
-
+    res.json({ success: true, prompts });
   } catch (err) {
-    console.error("❌ Prompt generation error:", err.message);
-    res.status(500).json({ error: "Failed to generate prompt" });
+    console.error("❌ Failed to generate prompts:", err);
+    res.status(500).json({ success: false, error: "Prompt generation failed" });
   }
 });
+
 
 
 async function deploySolomonInstance(company) {
