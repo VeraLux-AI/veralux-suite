@@ -243,3 +243,49 @@ async function provisionCompany() {
   }
 }
 
+async function generatePrompt() {
+  const purpose = document.getElementById('prompt-purpose').value.trim();
+  const business = document.getElementById('prompt-business').value.trim();
+  const tone = document.getElementById('prompt-tone').value.trim();
+
+  if (!purpose || !business) {
+    showToast("❌ Please enter both purpose and business.", false);
+    return;
+  }
+
+  toggleLoading(true);
+  try {
+    const res = await fetch('/admin/generate-prompt', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ purpose, business, tone })
+    });
+
+    const result = await res.json();
+    toggleLoading(false);
+
+    if (res.ok && result.prompt) {
+      document.getElementById('prompt-output').value = result.prompt;
+      showToast("✅ Prompt generated!");
+    } else {
+      showToast("❌ Failed to generate prompt", false);
+    }
+  } catch (err) {
+    toggleLoading(false);
+    showToast("❌ Error generating prompt", false);
+    console.error(err);
+  }
+}
+
+function saveGeneratedPrompt() {
+  const prompt = document.getElementById('prompt-output').value.trim();
+  if (!prompt) {
+    showToast("❌ No prompt to save", false);
+    return;
+  }
+
+  const key = "chatResponderPrompt";
+  configData[key].value = prompt;
+  document.getElementById(key).value = prompt;
+  showToast("✅ Prompt saved to Chat Responder!");
+}
