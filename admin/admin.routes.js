@@ -96,38 +96,60 @@ router.post('/provision-company', (req, res) => {
 });
 
 // 🧠 Generate AI Prompt (chatResponderPrompt or intakeExtractorPrompt)
-const { OpenAI } = require('openai');
+const { OpenAI } = require("openai");
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 router.post('/generate-prompt', async (req, res) => {
-  const { purpose, businessType, tone } = req.body;
-
-  if (!purpose || !businessType) {
-    return res.status(400).json({ error: 'Missing required fields.' });
+  const { purpose, business, tone } = req.body;
+  if (!purpose || !business) {
+    return res.status(400).json({ error: 'Missing fields' });
   }
-
-  const systemInstruction = `
-You are a prompt engineer. Generate a clean, effective system prompt for an AI assistant.
-It should be used to ${purpose} for a business type of "${businessType}".
-Make sure it is aligned with the tone: ${tone || 'professional and friendly'}.
-Respond with just the prompt text, no explanations.
-`;
 
   try {
-    const chat = await openai.chat.completions.create({
-      model: "gpt-4",
-      messages: [{ role: "system", content: systemInstruction }]
+    const systemMessage = {
+      role: 'system',
+      content: `You are an expert AI prompt engineer. Create two distinct prompts:
+1. "chatResponderPrompt" — a helpful, friendly assistant that guides a user through a conversational intake.
+2. "intakeExtractorPrompt" — a structured prompt that extracts data fields in JSON format from the conversation.`
+    };
+
+    const userMessage = {
+      role: 'user',
+      content: `
+Company type: ${business}
+AI purpose: ${purpose}
+Tone: ${tone || 'Professional and clear'}
+
+Return the result as JSON like:
+{
+  "chatResponderPrompt": "...",
+  "intakeExtractorPrompt": "..."
+}`
+    };
+
+    const completion = await openai.chat.completions.create({
+      model: 'gpt-4',
+      messages: [systemMessage, userMessage],
+      temperature: 0.7
     });
 
-    const generatedPrompt = chat.choices?.[0]?.message?.content?.trim();
-    if (!generatedPrompt) throw new Error("No prompt returned.");
+    const raw = completion.choices[0].message.content.trim();
+    const parsed = JSON.parse(raw);
 
-    res.json({ prompt: generatedPrompt });
+    res.json({
+      success: true,
+      prompts: {
+        chatResponderPrompt: parsed.chatResponderPrompt,
+        intakeExtractorPrompt: parsed.intakeExtractorPrompt
+      }
+    });
+
   } catch (err) {
-    console.error("❌ Prompt generation failed:", err.message);
-    res.status(500).json({ error: "Prompt generation failed." });
+    console.error("❌ Prompt generation error:", err.message);
+    res.status(500).json({ error: "Failed to generate prompts" });
   }
 });
+
 
 
 module.exports = router;
