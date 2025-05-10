@@ -176,14 +176,6 @@ function renderLists(data, container) {
   }
 }
 
-      wrapper.appendChild(label);
-      wrapper.appendChild(list);
-      wrapper.appendChild(addBtn);
-      container.appendChild(wrapper);
-    }
-  }
-}
-
 function renderTextareas(data, container) {
   for (const key in data) {
     const setting = data[key];
