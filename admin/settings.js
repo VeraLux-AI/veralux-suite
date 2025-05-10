@@ -127,11 +127,21 @@ function renderLists(data, container) {
 
       (setting.value || []).forEach(item => {
         const li = document.createElement('li');
+        li.className = 'flex gap-2';
+
         const input = document.createElement('input');
         input.type = 'text';
         input.value = item;
         input.className = 'w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none';
+
+        const delBtn = document.createElement('button');
+        delBtn.innerText = '❌';
+        delBtn.type = 'button';
+        delBtn.className = 'text-red-600 text-sm';
+        delBtn.onclick = () => li.remove();
+
         li.appendChild(input);
+        li.appendChild(delBtn);
         list.appendChild(li);
       });
 
@@ -141,12 +151,30 @@ function renderLists(data, container) {
       addBtn.className = 'mt-2 text-sm text-red-600 hover:underline';
       addBtn.onclick = () => {
         const li = document.createElement('li');
+        li.className = 'flex gap-2';
+
         const input = document.createElement('input');
         input.type = 'text';
         input.className = 'w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none';
+
+        const delBtn = document.createElement('button');
+        delBtn.innerText = '❌';
+        delBtn.type = 'button';
+        delBtn.className = 'text-red-600 text-sm';
+        delBtn.onclick = () => li.remove();
+
         li.appendChild(input);
+        li.appendChild(delBtn);
         list.appendChild(li);
       };
+
+      wrapper.appendChild(label);
+      wrapper.appendChild(list);
+      wrapper.appendChild(addBtn);
+      container.appendChild(wrapper);
+    }
+  }
+}
 
       wrapper.appendChild(label);
       wrapper.appendChild(list);
