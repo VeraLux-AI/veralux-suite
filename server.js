@@ -9,6 +9,8 @@ const app = express();
 
 // Middleware to parse POST form data
 app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+
 
 // Session config
 app.use(session({
