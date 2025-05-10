@@ -98,7 +98,7 @@ router.post('/provision-company', (req, res) => {
 
 // 🧠 Generate AI Prompt (chatResponderPrompt or intakeExtractorPrompt)
 const { generatePrompts } = require('./ai/promptGenerator');
-const { guessRequiredFields } = require('./ai/guessRequiredFields');
+
 router.post('/generate-prompt', async (req, res) => {
   const { purpose, business, tone } = req.body;
   const company = req.session?.company || req.body.company;
