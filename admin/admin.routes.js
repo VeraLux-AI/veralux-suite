@@ -156,12 +156,17 @@ async function deploySolomonInstance(company) {
   const apiKey = process.env.RENDER_API_KEY;
   const serviceId = process.env.RENDER_SOLOMON_SERVICE_ID; // Add this to your .env
 
-  const response = await axios.post(`${renderAPI}/${serviceId}/deploys`, {}, {
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      'Content-Type': 'application/json',
-    }
-  });
+  const response = await axios.post(
+    'https://api.render.com/v1/services/srv-cvva0v0dl3ps739foekg/deploys',
+    {},
+    {
+       headers: {
+         Authorization: `Bearer ${apiKey}`,
+         'Content-Type': 'application/json',
+       }
+     }
+  );
+
 
   return response.data;
 }
