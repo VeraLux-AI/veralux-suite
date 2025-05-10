@@ -2,7 +2,6 @@ const express = require('express');
 const path = require('path');
 const fs = require('fs');
 const { exec } = require('child_process');
-
 const router = express.Router();
 
 const CONFIG_PATH = (company) => path.join(__dirname, company, 'settings.json');
