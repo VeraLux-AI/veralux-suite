@@ -181,19 +181,29 @@ function renderTextareas(data, container) {
 
 async function saveSettings() {
   const newConfig = {};
+  let updatedFieldList = [];
+
   for (const key in configData) {
     const setting = configData[key];
+
     if (setting.type === 'toggle') {
       newConfig[key] = { ...setting, enabled: document.getElementById(key).checked };
+
     } else if (setting.type === 'textarea') {
       newConfig[key] = { ...setting, value: document.getElementById(key).value };
+
     } else if (setting.type === 'list') {
       const listEls = document.querySelectorAll(`#${key}-list input`);
-      newConfig[key] = {
-        ...setting,
-        value: Array.from(listEls).map(el => el.value.trim()).filter(Boolean)
-      };
+      const cleaned = Array.from(listEls).map(el => el.value.trim()).filter(Boolean);
+      newConfig[key] = { ...setting, value: cleaned };
+      if (key === 'requiredFields') updatedFieldList = cleaned;
     }
+  }
+
+  // ✨ Auto-sync required fields to intakeExtractorPrompt
+  if (updatedFieldList.length > 0 && newConfig.intakeExtractorPrompt) {
+    const fieldLine = updatedFieldList.join(', ');
+    newConfig.intakeExtractorPrompt.value = `Extract the following fields from the user conversation: ${fieldLine}. Return them as structured JSON.`;
   }
 
   const res = await fetch(`/admin/${selectedCompany}/save-settings`, {
