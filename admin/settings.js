@@ -353,52 +353,59 @@ function saveGeneratedPrompt() {
   showToast("✅ Prompts saved to settings!");
 }
 
-async function uploadLogo() {
-  const input = document.getElementById('logo-upload');
-  const file = input.files[0];
-  if (!file) {
-    showToast("❌ No file selected", false);
-    return;
-  }
-
+async function extractColorsFromLogo(file) {
   const formData = new FormData();
-  formData.append('logo', file);
-  formData.append('company', selectedCompany);
+  formData.append("logo", file);
 
-  toggleLoading(true);
-  try {
-    const res = await fetch('/admin/upload-logo', {
-      method: 'POST',
-      body: formData
-    });
+  const res = await fetch("/admin/extract-logo-colors", {
+    method: "POST",
+    body: formData,
+  });
 
-    const result = await res.json();
-    toggleLoading(false);
-
-    if (res.ok && result.colors) {
-      document.getElementById('logo-preview').classList.remove('hidden');
-      document.getElementById('uploaded-logo-img').src = result.logoUrl;
-      document.getElementById('color-results').classList.remove('hidden');
-
-      const swatchContainer = document.getElementById('color-swatches');
-      swatchContainer.innerHTML = '';
-      result.colors.forEach(hex => {
-        const swatch = document.createElement('div');
-        swatch.style.backgroundColor = hex;
-        swatch.className = 'w-8 h-8 rounded border';
-        swatch.title = hex;
-        swatchContainer.appendChild(swatch);
-      });
-
-      showToast("✅ Colors extracted from logo!");
-    } else {
-      showToast("❌ Failed to extract colors", false);
-    }
-  } catch (err) {
-    toggleLoading(false);
-    console.error(err);
-    showToast("❌ Error uploading logo", false);
+  const result = await res.json();
+  if (res.ok && result.success) {
+    return result.colors;
+  } else {
+    showToast("❌ Failed to extract colors", false);
+    console.error(result.error);
+    return [];
   }
 }
 
+function renderBrandColorsSection(colors = []) {
+  const container = document.getElementById("branding-group");
+  container.innerHTML = "";
 
+  const wrapper = document.createElement("div");
+  wrapper.className = "space-y-2";
+
+  const label = document.createElement("label");
+  label.innerText = "Brand Colors";
+  label.className = "text-sm text-gray-700 font-medium block";
+  wrapper.appendChild(label);
+
+  colors.forEach((color, index) => {
+    const input = document.createElement("input");
+    input.type = "color";
+    input.value = color;
+    input.className = "w-16 h-10 rounded border";
+    input.dataset.index = index;
+    wrapper.appendChild(input);
+  });
+
+  container.appendChild(wrapper);
+}
+
+document.getElementById("logo-upload")?.addEventListener("change", async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  toggleLoading(true);
+  const colors = await extractColorsFromLogo(file);
+  toggleLoading(false);
+
+  if (colors.length > 0) {
+    renderBrandColorsSection(colors);
+    showToast("🎨 Colors extracted from logo!");
+  }
+});
