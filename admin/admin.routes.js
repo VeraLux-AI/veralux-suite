@@ -179,6 +179,21 @@ router.post('/deploy-company', async (req, res) => {
   }
 });
 
+const multer = require('multer');
+const getColors = require('get-image-colors');
+
+const upload = multer({ dest: 'uploads/' });
+
+router.post('/extract-logo-colors', upload.single('logo'), async (req, res) => {
+  try {
+    const colors = await getColors(req.file.path);
+    const hexColors = colors.map(color => color.hex());
+    res.json({ colors: hexColors });
+  } catch (err) {
+    console.error('Color extraction error:', err);
+    res.status(500).json({ error: 'Failed to extract colors' });
+  }
+});
 
 
 
