@@ -322,6 +322,10 @@ async function generatePrompt() {
       document.getElementById('prompt-output-extract').value = extractPrompt;
 
       showToast("✅ Prompts generated!");
+
+      // ✅ Reload settings to refresh requiredFields UI
+      await loadSettings();
+
     } else {
       showToast("❌ Failed to generate prompts", false);
     }
