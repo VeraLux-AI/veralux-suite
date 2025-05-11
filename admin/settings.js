@@ -252,8 +252,6 @@ async function saveSettings() {
   });
 
   showToast(res.ok ? "✅ Settings saved!" : "❌ Failed to save settings.", res.ok);
-}
-
 // Show synced message
 const syncStatus = document.getElementById('sync-status');
 if (syncStatus) {
@@ -265,7 +263,6 @@ if (syncStatus) {
     setTimeout(() => syncStatus.classList.add('hidden'), 400);
   }, 3000);
 }
-
 
 window.onload = async () => {
   selectedCompany = "elevated-garage";
