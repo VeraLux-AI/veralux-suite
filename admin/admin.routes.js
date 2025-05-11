@@ -201,17 +201,16 @@ router.post('/extract-logo-colors', upload.single('logo'), async (req, res) => {
     const hexColors = colors.map(color => color.hex());
 
     // Optional: Clean up temp files
-    fs.unlinkSync(originalPath);
-    fs.unlinkSync(convertedPath);
+    try { fs.unlinkSync(originalPath); } catch (e) {}
+    try { fs.unlinkSync(convertedPath); } catch (e) {}
 
-    res.json({ colors: hexColors });
+    // ✅ Send success response
+    res.json({ success: true, colors: hexColors });
   } catch (err) {
     console.error('Color extraction error:', err);
     res.status(500).json({ error: 'Failed to extract colors' });
   }
 });
-
-
 
 
 module.exports = router;
