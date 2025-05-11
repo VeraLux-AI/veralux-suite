@@ -305,10 +305,11 @@ async function generatePrompt() {
   toggleLoading(true);
   try {
     const res = await fetch('/admin/generate-prompt', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ purpose, business, tone })
-    });
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ company: selectedCompany, purpose, business, tone })
+});
+
 
     const result = await res.json();
     toggleLoading(false);
