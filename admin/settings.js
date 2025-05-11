@@ -357,17 +357,22 @@ async function extractColorsFromLogo(file) {
   const formData = new FormData();
   formData.append("logo", file);
 
-  const res = await fetch("/admin/extract-logo-colors", {
-    method: "POST",
-    body: formData,
-  });
+  try {
+    const res = await fetch("/admin/extract-logo-colors", {
+      method: "POST",
+      body: formData,
+    });
 
-  const result = await res.json();
-  if (res.ok && result.success) {
-    return result.colors;
-  } else {
-    showToast("❌ Failed to extract colors", false);
-    console.error(result.error);
+    const result = await res.json();
+
+    if (res.ok && (result.colors || result.success)) {
+      return result.colors || [];
+    } else {
+      throw new Error(result.error || "Unknown error");
+    }
+  } catch (err) {
+    console.error("❌ Color extraction failed:", err.message);
+    showToast("❌ Failed to extract colors from logo", false);
     return [];
   }
 }
@@ -390,7 +395,19 @@ function renderBrandColorsSection(colors = []) {
     input.value = color;
     input.className = "w-16 h-10 rounded border";
     input.dataset.index = index;
-    wrapper.appendChild(input);
+
+    // Optional: Add corresponding hex input field
+    const hex = document.createElement("input");
+    hex.type = "text";
+    hex.value = color;
+    hex.className = "ml-2 px-2 py-1 border rounded text-sm w-24 align-middle";
+
+    const row = document.createElement("div");
+    row.className = "flex items-center gap-2";
+    row.appendChild(input);
+    row.appendChild(hex);
+
+    wrapper.appendChild(row);
   });
 
   container.appendChild(wrapper);
@@ -409,3 +426,4 @@ document.getElementById("logo-upload")?.addEventListener("change", async (e) => 
     showToast("🎨 Colors extracted from logo!");
   }
 });
+
