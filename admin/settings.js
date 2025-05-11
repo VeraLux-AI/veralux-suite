@@ -254,6 +254,19 @@ async function saveSettings() {
   showToast(res.ok ? "✅ Settings saved!" : "❌ Failed to save settings.", res.ok);
 }
 
+// Show synced message
+const syncStatus = document.getElementById('sync-status');
+if (syncStatus) {
+  syncStatus.classList.remove('hidden');
+  syncStatus.style.opacity = '1';
+
+  setTimeout(() => {
+    syncStatus.style.opacity = '0';
+    setTimeout(() => syncStatus.classList.add('hidden'), 400);
+  }, 3000);
+}
+
+
 window.onload = async () => {
   selectedCompany = "elevated-garage";
   const option = new Option(selectedCompany, selectedCompany);
