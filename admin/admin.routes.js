@@ -181,19 +181,36 @@ router.post('/deploy-company', async (req, res) => {
 
 const multer = require('multer');
 const getColors = require('get-image-colors');
+const sharp = require('sharp');
 
 const upload = multer({ dest: 'uploads/' });
 
 router.post('/extract-logo-colors', upload.single('logo'), async (req, res) => {
+  const fs = require('fs');
+  const path = require('path');
+
   try {
-    const colors = await getColors(req.file.path);
+    const originalPath = req.file.path;
+    const convertedPath = `${originalPath}.png`;
+
+    // Convert uploaded image to PNG with Sharp
+    await sharp(originalPath).png().toFile(convertedPath);
+
+    // Extract colors from clean PNG
+    const colors = await getColors(convertedPath);
     const hexColors = colors.map(color => color.hex());
+
+    // Optional: Clean up temp files
+    fs.unlinkSync(originalPath);
+    fs.unlinkSync(convertedPath);
+
     res.json({ colors: hexColors });
   } catch (err) {
     console.error('Color extraction error:', err);
     res.status(500).json({ error: 'Failed to extract colors' });
   }
 });
+
 
 
 
