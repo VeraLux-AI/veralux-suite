@@ -139,6 +139,14 @@ prompts.requiredFields.forEach(field => {
     const filePath = path.join(__dirname, '..', company, 'settings.json');
     fs.writeFileSync(filePath, JSON.stringify(settings, null, 2));
 
+    const dir = path.dirname(filePath);
+
+// ✅ Ensure the directory exists
+if (!fs.existsSync(dir)) {
+  fs.mkdirSync(dir, { recursive: true });
+}
+
+
     res.json({ success: true, prompts });
   } catch (err) {
     console.error("❌ Failed to generate prompts:", err);
