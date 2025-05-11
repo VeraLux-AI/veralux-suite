@@ -137,7 +137,6 @@ prompts.requiredFields.forEach(field => {
 
     // Save new config to file
     const filePath = path.join(__dirname, '..', company, 'settings.json');
-    fs.writeFileSync(filePath, JSON.stringify(settings, null, 2));
 
     const dir = path.dirname(filePath);
 
@@ -145,6 +144,8 @@ prompts.requiredFields.forEach(field => {
 if (!fs.existsSync(dir)) {
   fs.mkdirSync(dir, { recursive: true });
 }
+    
+    fs.writeFileSync(filePath, JSON.stringify(settings, null, 2));
 
 
     res.json({ success: true, prompts });
