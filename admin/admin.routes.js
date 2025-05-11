@@ -109,31 +109,31 @@ router.post('/generate-prompt', async (req, res) => {
 
   try {
     const prompts = await generatePrompts(purpose, business, tone);
-    const guessedFields = await guessRequiredFields(prompts.chatResponderPrompt); // or from `purpose`, etc.
-
+   
     const settings = {
-      chatResponderPrompt: {
-        type: "textarea",
-        label: "Chat Responder Prompt",
-        value: prompts.chatResponderPrompt
-      },
-      intakeExtractorPrompt: {
-        type: "textarea",
-        label: "Intake Extractor Prompt",
-        value: prompts.intakeExtractorPrompt
-      },
-      requiredFields: {
-        type: "list",
-        label: "Required Intake Fields",
-        value: guessedFields
-      },
-      sourceMap: {}
-    };
+  chatResponderPrompt: {
+    type: "textarea",
+    label: "Chat Responder Prompt",
+    value: prompts.chatResponderPrompt
+  },
+  intakeExtractorPrompt: {
+    type: "textarea",
+    label: "Intake Extractor Prompt",
+    value: prompts.intakeExtractorPrompt
+  },
+  requiredFields: {
+    type: "list",
+    label: "Required Intake Fields",
+    value: prompts.requiredFields
+  },
+  sourceMap: {}
+};
 
-    // 👇 Add this block right here
-    guessedFields.forEach(field => {
-      settings.sourceMap[field] = "AI";
-    });
+// 👇 Populate sourceMap from requiredFields
+prompts.requiredFields.forEach(field => {
+  settings.sourceMap[field] = "AI";
+});
+
 
     // Save new config to file
     const filePath = path.join(__dirname, '..', company, 'settings.json');
