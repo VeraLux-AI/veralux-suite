@@ -1,4 +1,3 @@
-
 function showToast(message, success = true) {
   const toast = document.createElement('div');
   toast.textContent = message;
@@ -264,16 +263,6 @@ if (syncStatus) {
   }, 3000);
 }
 
-window.onload = async () => {
-  selectedCompany = "elevated-garage";
-  const option = new Option(selectedCompany, selectedCompany);
-  document.getElementById('company-select').add(option);
-  document.getElementById('company-select').value = selectedCompany;
-  toggleLoading(true);
-  await loadSettings();
-  toggleLoading(false);
-};
-
 async function provisionCompany() {
   if (!selectedCompany) return showToast("❌ No company selected", false);
 
@@ -441,4 +430,15 @@ document.getElementById("logo-upload")?.addEventListener("change", async (e) => 
     showToast("🎨 Colors extracted from logo!");
   }
 });
+
+
+window.onload = async () => {
+  selectedCompany = "elevated-garage";
+  const option = new Option(selectedCompany, selectedCompany);
+  document.getElementById('company-select').add(option);
+  document.getElementById('company-select').value = selectedCompany;
+  toggleLoading(true);
+  await loadSettings();
+  toggleLoading(false);
+};
 
