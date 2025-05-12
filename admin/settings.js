@@ -354,6 +354,7 @@ if (res.ok && result.success && result.prompts) {
 } else {
   showToast("❌ Failed to generate prompts", false);
 }
+}
 
 
 function saveGeneratedPrompt() {
