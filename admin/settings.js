@@ -209,7 +209,7 @@ function renderTextareas(data, container) {
       textarea.id = key;
       textarea.value = setting.value || '';
       textarea.className = 'w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none';
-      
+
       wrapper.appendChild(label);
       wrapper.appendChild(textarea);
       container.appendChild(wrapper);
@@ -251,6 +251,8 @@ async function saveSettings() {
   });
 
   showToast(res.ok ? "✅ Settings saved!" : "❌ Failed to save settings.", res.ok);
+}
+
 // Show synced message
 const syncStatus = document.getElementById('sync-status');
 if (syncStatus) {
@@ -262,6 +264,17 @@ if (syncStatus) {
     setTimeout(() => syncStatus.classList.add('hidden'), 400);
   }, 3000);
 }
+
+
+window.onload = async () => {
+  selectedCompany = "elevated-garage";
+  const option = new Option(selectedCompany, selectedCompany);
+  document.getElementById('company-select').add(option);
+  document.getElementById('company-select').value = selectedCompany;
+  toggleLoading(true);
+  await loadSettings();
+  toggleLoading(false);
+};
 
 async function provisionCompany() {
   if (!selectedCompany) return showToast("❌ No company selected", false);
@@ -430,15 +443,3 @@ document.getElementById("logo-upload")?.addEventListener("change", async (e) => 
     showToast("🎨 Colors extracted from logo!");
   }
 });
-
-
-window.onload = async () => {
-  selectedCompany = "elevated-garage";
-  const option = new Option(selectedCompany, selectedCompany);
-  document.getElementById('company-select').add(option);
-  document.getElementById('company-select').value = selectedCompany;
-  toggleLoading(true);
-  await loadSettings();
-  toggleLoading(false);
-};
-
