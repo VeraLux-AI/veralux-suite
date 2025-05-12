@@ -317,44 +317,43 @@ async function generatePrompt() {
   toggleLoading(true);
   try {
     const res = await fetch('/admin/generate-prompt', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ company: selectedCompany, purpose, business, tone })
-});
-
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ company: selectedCompany, purpose, business, tone })
+    });
 
     const result = await res.json();
-toggleLoading(false);
+    toggleLoading(false);
 
-if (res.ok && result.success && result.prompts) {
-  const chatPrompt = result.prompts.chatResponderPrompt || '';
-  const extractPrompt = result.prompts.intakeExtractorPrompt || '';
+    if (res.ok && result.success && result.prompts) {
+      const chatPrompt = result.prompts.chatResponderPrompt || '';
+      const extractPrompt = result.prompts.intakeExtractorPrompt || '';
 
-  // Update prompt fields in configData
-  if (configData.chatResponderPrompt) configData.chatResponderPrompt.value = chatPrompt;
-  if (configData.intakeExtractorPrompt) configData.intakeExtractorPrompt.value = extractPrompt;
+      if (configData.chatResponderPrompt) configData.chatResponderPrompt.value = chatPrompt;
+      if (configData.intakeExtractorPrompt) configData.intakeExtractorPrompt.value = extractPrompt;
 
-  // Update the requiredFields list from the prompt if it exists
-  const match = extractPrompt.match(/Extract the following fields.*?:\\s*(.+?)\\./);
-  if (match && match[1]) {
-    const fields = match[1].split(',').map(f => f.trim());
-    if (configData.requiredFields) {
-      configData.requiredFields.value = fields;
+      const match = extractPrompt.match(/Extract the following fields.*?:\s*(.+?)\./);
+      if (match && match[1]) {
+        const fields = match[1].split(',').map(f => f.trim());
+        if (configData.requiredFields) {
+          configData.requiredFields.value = fields;
+        }
+      }
+
+      renderSection('list-group', '📋 Required Fields', renderLists);
+      document.getElementById('prompt-output-chat').value = chatPrompt;
+      document.getElementById('prompt-output-extract').value = extractPrompt;
+      showToast("✅ Prompts generated!");
+    } else {
+      showToast("❌ Failed to generate prompts", false);
     }
+  } catch (err) {
+    toggleLoading(false);
+    showToast("❌ Error generating prompts", false);
+    console.error(err);
   }
+} // ✅ this closing brace was missing
 
-  // Re-render required fields UI from updated configData
-  renderSection('list-group', '📋 Required Fields', renderLists);
-
-  // Set prompt textarea values
-  document.getElementById('prompt-output-chat').value = chatPrompt;
-  document.getElementById('prompt-output-extract').value = extractPrompt;
-
-  showToast("✅ Prompts generated!");
-} else {
-  showToast("❌ Failed to generate prompts", false);
-}
-}
 
 
 function saveGeneratedPrompt() {
