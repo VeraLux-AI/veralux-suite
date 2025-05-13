@@ -12,6 +12,8 @@ const { generateSessionId } = require('./utils/sessions');
 const intakeExtractor = require('./ai/intakeExtractor');
 const chatResponder = require('./ai/chatResponder');
 const doneChecker = require('./ai/doneChecker');
+const MonitorAI = require('./ai/MonitorAI');
+
 const {
   userConversations,
   userUploadedPhotos,
