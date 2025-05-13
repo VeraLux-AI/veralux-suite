@@ -138,22 +138,18 @@ app.post('/message', async (req, res) => {
 
   // Merge extracted fields into memory
   for (const key in fields) {
-  const value = fields[key];
+    const value = fields[key];
 
-  // 🛡️ Don't overwrite uploaded photo flag with an empty string
-  if (key === 'garage_photo_upload' && (!value || value.trim() === '')) {
-    continue;
-  }
+    if (key === 'garage_photo_upload' && (!value || value.trim() === '')) {
+      continue;
+    }
 
-  if (value && value.trim() !== '') {
-    userIntakeOverrides[sessionId][key] = value;
+    if (value && value.trim() !== '') {
+      userIntakeOverrides[sessionId][key] = value;
+    }
   }
-}
 
   console.log("[intakeExtractor] Smart-merged updated intake:", userIntakeOverrides[sessionId]);
-
-  let assistantReply;
-  const responseData = { sessionId };
 
   const sessionMemory = {
     intakeData: userIntakeOverrides[sessionId],
@@ -161,66 +157,29 @@ app.post('/message', async (req, res) => {
     photoRequested: userFlags[sessionId]?.photoRequested || false
   };
 
-  const requiredFields = [
-    "full_name", "email", "phone",
-    "garage_goals", "square_footage",
-    "must_have_features", "budget",
-    "start_date", "final_notes"
-  ];
-  const allFieldsPresent = requiredFields.every(key => {
-    const val = userIntakeOverrides[sessionId][key];
-    return val && val.trim().length > 0;
+  const monitorResult = await MonitorAI({
+    conversation: userConversations[sessionId],
+    intakeData: userIntakeOverrides[sessionId],
+    sessionMemory,
+    config: adminConfig
   });
 
-  if (allFieldsPresent) {
-    const { done, missing } = await doneChecker(userIntakeOverrides[sessionId]);
+  const assistantReply = monitorResult.reply;
+  const responseData = {
+    sessionId,
+    reply: assistantReply
+  };
 
-    if (!done && missing.length > 0) {
-      const enhancedHistory = [
-        ...userConversations[sessionId],
-        { role: 'system', content: `missing_fields: ${JSON.stringify(missing)}` }
-      ];
-      const chatResponse = await chatResponder(enhancedHistory, missing, sessionMemory);
-      assistantReply = chatResponse.message;
-    } else {
-      const chatResponse = await chatResponder(userConversations[sessionId], [], sessionMemory);
-      assistantReply = chatResponse.message;
+  if (monitorResult.triggerUpload) responseData.triggerUpload = true;
+  if (monitorResult.showSummary) responseData.show_summary = true;
+  if (monitorResult.nextStep === "escalate_to_human") responseData.handoff = true;
 
-      // Sync memory
-      if (sessionMemory.photoRequested) {
-        if (!userFlags[sessionId]) userFlags[sessionId] = {};
-        userFlags[sessionId].photoRequested = true;
-      }
-
-      // 👇 Photo enforcement BEFORE summary
-      const photoFlag = userIntakeOverrides[sessionId]?.garage_photo_upload;
-      const photosUploaded = userUploadedPhotos[sessionId]?.length > 0;
-
-     if (!photosUploaded && (!photoFlag || photoFlag === '')) {
-       responseData.triggerUpload = true;
-       assistantReply = "📸 Before we finish, could you upload a photo of your garage or choose to skip it?";
-     } else if (!userIntakeOverrides[sessionId].summary_submitted) {
-       console.log("[✅ Intake + Photo Complete] Ready to finalize summary.");
-       responseData.show_summary = true;
-     }
-
-    }
-  } else {
-    const chatResponse = await chatResponder(userConversations[sessionId], [], sessionMemory);
-    assistantReply = chatResponse.message;
-
-    if (sessionMemory.photoRequested) {
-      if (!userFlags[sessionId]) userFlags[sessionId] = {};
-      userFlags[sessionId].photoRequested = true;
-    }
-
-    if (chatResponse.signal === "triggerUploader") {
-      responseData.triggerUpload = true;
-    }
+  if (sessionMemory.photoRequested) {
+    if (!userFlags[sessionId]) userFlags[sessionId] = {};
+    userFlags[sessionId].photoRequested = true;
   }
 
   userConversations[sessionId].push({ role: 'assistant', content: assistantReply });
-  responseData.reply = assistantReply;
   res.status(200).json(responseData);
 });
 
