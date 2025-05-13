@@ -50,7 +50,7 @@ app.post('/upload-photos', upload.array('photos'), async (req, res) => {
   ensureSession(sessionId);
 
   req.files.forEach(file => userUploadedPhotos[sessionId].push(file));
-  userIntakeOverrides[sessionId].garage_photo_upload = "Uploaded";
+  userIntakeOverrides[sessionId].photo = "Uploaded";
 
   try {
     // Upload each photo to Drive (optional but already implemented)
@@ -96,7 +96,7 @@ app.post("/skip-photo-upload", async (req, res) => {
   if (!sessionId) return res.status(400).send("Missing session ID");
   ensureSession(sessionId);
 
-  userIntakeOverrides[sessionId].garage_photo_upload = "Skipped";
+  userIntakeOverrides[sessionId].photo = "Skipped";
 
   try {
     const pdfBuffer = await generateSummaryPDF(userIntakeOverrides[sessionId]);
@@ -140,7 +140,7 @@ app.post('/message', async (req, res) => {
   for (const key in fields) {
     const value = fields[key];
 
-    if (key === 'garage_photo_upload' && (!value || value.trim() === '')) {
+    if (key === 'photo' && (!value || value.trim() === '')) {
       continue;
     }
 
@@ -239,11 +239,11 @@ app.post('/submit-final-intake', async (req, res) => {
   }
 
   const hasUploadedPhotos = userUploadedPhotos[sessionId]?.length > 0;
-  const photoFlag = intakeData?.garage_photo_upload;
+  const photoFlag = intakeData?.photo;
 
   let requiredFields = adminConfig.requiredFields?.value || [];
   if (adminConfig.requirePhotoUpload?.enabled) {
-    requiredFields.push("garage_photo_upload");
+    requiredFields.push("photo");
   }
 
   const missingFields = requiredFields.filter(field => {
