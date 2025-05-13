@@ -13,7 +13,6 @@ const intakeExtractor = require('./ai/intakeExtractor');
 const chatResponder = require('./ai/chatResponder');
 const doneChecker = require('./ai/doneChecker');
 const MonitorAI = require('./ai/MonitorAI');
-
 const {
   userConversations,
   userUploadedPhotos,
@@ -23,8 +22,7 @@ const {
 } = require('./utils/sessions');
 
 // Admin portal
-const adminRoutes = require('./admin/admin.routes'); 
-const adminConfig = require('./admin/admin-config.json');
+const { router: adminRoutes, logClientActivity } = require('./admin/admin.routes'); 
 const app = express();
 const port = process.env.PORT || 10000;
 
@@ -52,6 +50,7 @@ app.post('/upload-photos', upload.array('photos'), async (req, res) => {
   req.files.forEach(file => userUploadedPhotos[sessionId].push(file));
   userIntakeOverrides[sessionId].photo = "Uploaded";
 
+
   try {
     // Upload each photo to Drive (optional but already implemented)
     for (const file of req.files) {
@@ -78,6 +77,11 @@ app.post('/upload-photos', upload.array('photos'), async (req, res) => {
     });
 
     console.log("[📸 Photos and PDF uploaded successfully]");
+    
+    logClientActivity("default", "photo");
+    logClientActivity("default", "summary");
+
+    
     res.status(200).json({
       show_summary: true,
       drive_file_id: uploaded.id,
@@ -98,6 +102,7 @@ app.post("/skip-photo-upload", async (req, res) => {
 
   userIntakeOverrides[sessionId].photo = "Skipped";
 
+
   try {
     const pdfBuffer = await generateSummaryPDF(userIntakeOverrides[sessionId]);
     const uploaded = await uploadToDrive({
@@ -108,6 +113,9 @@ app.post("/skip-photo-upload", async (req, res) => {
 });
 
 console.log("[📸 Intake + Photo Complete] Summary PDF created and uploaded (skip path).");
+
+   logClientActivity("default", "summary");
+ 
 
 res.status(200).json({
   show_summary: true,
@@ -138,18 +146,22 @@ app.post('/message', async (req, res) => {
 
   // Merge extracted fields into memory
   for (const key in fields) {
-    const value = fields[key];
+  const value = fields[key];
 
-    if (key === 'photo' && (!value || value.trim() === '')) {
-      continue;
-    }
-
-    if (value && value.trim() !== '') {
-      userIntakeOverrides[sessionId][key] = value;
-    }
+  // 🛡️ Don't overwrite uploaded photo flag with an empty string
+  if (key === 'photo' && (!value || value.trim() === '')) {
+    continue;
   }
 
+  if (value && value.trim() !== '') {
+    userIntakeOverrides[sessionId][key] = value;
+  }
+}
+
   console.log("[intakeExtractor] Smart-merged updated intake:", userIntakeOverrides[sessionId]);
+
+  let assistantReply;
+  const responseData = { sessionId };
 
   const sessionMemory = {
     intakeData: userIntakeOverrides[sessionId],
@@ -157,30 +169,59 @@ app.post('/message', async (req, res) => {
     photoRequested: userFlags[sessionId]?.photoRequested || false
   };
 
-  const monitorResult = await MonitorAI({
-    conversation: userConversations[sessionId],
-    intakeData: userIntakeOverrides[sessionId],
-    sessionMemory,
-    config: adminConfig
-  });
 
-  const assistantReply = monitorResult.reply;
-  const responseData = {
-    sessionId,
-    reply: assistantReply
-  };
+const monitorResult = await MonitorAI({
+  conversation: userConversations[sessionId],
+  intakeData: userIntakeOverrides[sessionId],
+  sessionMemory,
+  config: {
+      photoField: "photo",
+      photoRequired: true,
+      generatePdfWithoutPhoto: true,
+      completeMessage: "✅ All set! Ready to finalize your project summary.",
+      photoPrompt: "📸 Upload a quick photo or tap skip to continue.",
+      requiredFields: [
+        "full_name",
+        "email",
+        "phone",
+        "garage_goals",
+        "square_footage",
+        "must_have_features",
+        "budget",
+        "start_date",
+        "final_notes"
+      ]
+    }
+});
 
-  if (monitorResult.triggerUpload) responseData.triggerUpload = true;
-  if (monitorResult.showSummary) responseData.show_summary = true;
-  if (monitorResult.nextStep === "escalate_to_human") responseData.handoff = true;
+// Only use MonitorAI to determine flow — not for response generation
+if (!monitorResult.showSummary && !monitorResult.triggerUpload) {
+  assistantReply = await chatResponder(
+    userConversations[sessionId],
+    monitorResult.missingFields || [],
+    sessionMemory
+  );
+} else if (monitorResult.completeMessage) {
+  assistantReply = monitorResult.completeMessage;
+} else {
+  assistantReply = "✅ All set! Let’s move to the next step.";
+}
 
-  if (sessionMemory.photoRequested) {
-    if (!userFlags[sessionId]) userFlags[sessionId] = {};
-    userFlags[sessionId].photoRequested = true;
-  }
+userConversations[sessionId].push({ role: 'assistant', content: assistantReply });
+responseData.reply = assistantReply;
 
-  userConversations[sessionId].push({ role: 'assistant', content: assistantReply });
-  res.status(200).json(responseData);
+if (monitorResult.triggerUpload) {
+  responseData.triggerUpload = true;
+}
+if (monitorResult.showSummary) {
+  responseData.show_summary = true;
+}
+if (monitorResult.nextStep === "escalate_to_human") {
+  responseData.handoff = true;
+}
+
+res.status(200).json(responseData);
+
 });
 
 // === Stripe Checkout Session Route ===
@@ -290,6 +331,9 @@ app.post('/submit-final-intake', async (req, res) => {
   }
 
   userIntakeOverrides[sessionId].summary_submitted = true;
+
+  logClientActivity("default", "submit");
+
 
   return res.status(200).json({
     show_summary: true,
