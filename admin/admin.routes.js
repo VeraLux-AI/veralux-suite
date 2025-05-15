@@ -158,9 +158,11 @@ router.post('/create-company', (req, res) => {
 
 // Optional: Trigger provisioning of a Solomon instance
 router.post('/provision-company', (req, res) => {
-  const company = req.body.company?.trim().toLowerCase().replace(/\s+/g, '-');
-  if (!company) return res.status(400).json({ error: 'Missing company name.' });
+  const rawCompany = req.body.company?.trim().toLowerCase();
+  if (!rawCompany) return res.status(400).json({ error: 'Missing company name.' });
 
+  // ✅ Sanitize to remove unsafe characters
+  const company = rawCompany.replace(/[^a-zA-Z0-9_-]/g, '-');
 
   // === 🧪 Inject .env into the new provisioned folder ===
   const deploymentDir = path.join(__dirname, '..', 'provisioned', `solomon-${company}`);
