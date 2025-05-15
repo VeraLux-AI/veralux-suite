@@ -17,8 +17,11 @@ async function MonitorAI({ conversation = [], intakeData = {}, sessionMemory = {
   const done = await doneChecker(intakeData, requiredFields);
   const missingFields = done?.missingFields || [];
 
-  const photoUploaded = intakeData[photoField] === "Uploaded";
-  const photoSkipped = intakeData[photoField] === "Skipped";
+  const photoValue = intakeData[photoField];
+  const photoUploaded = photoValue === "Uploaded";
+  const photoSkipped = photoValue === "Skipped";
+  const photoMissing = !photoUploaded && !photoSkipped;
+
 
   // 🧠 If intake is incomplete, ask AI which field to target next
   if (!done?.isComplete && missingFields.length > 0) {
@@ -71,33 +74,44 @@ ${conversation.map(m => `${m.role === 'user' ? 'User' : 'Solomon'}: ${m.content}
   }
 
   // 🖼 Ask for photo if needed
-  if (done?.isComplete && photoRequired && !photoUploaded && !photoSkipped) {
-    return {
-      isComplete: false,
-      nextStep: "request_photo",
-      missingFields: [],
-      aiFieldChoice: null,
-      reply: null,
-      triggerUpload: true,
-      showSummary: false
-    };
-  }
+ if (done?.isComplete && photoRequired && photoMissing) {
+  console.log("🧠 Done is complete but photo missing. Triggering upload.");
+  return {
+    isComplete: false,
+    nextStep: "request_photo",
+    missingFields: [],
+    aiFieldChoice: null,
+    reply: null,
+    triggerUpload: true,
+    showSummary: false
+  };
+}
+
 
   // ✅ All done — ready to summarize
-  const canProceed =
-    !photoRequired || photoUploaded || photoSkipped || generatePdfWithoutPhoto;
+ const canProceed =
+  !photoRequired || photoUploaded || photoSkipped || generatePdfWithoutPhoto;
 
-  if (done?.isComplete && canProceed) {
-    return {
-      isComplete: true,
-      nextStep: "submit_summary",
-      missingFields: [],
-      aiFieldChoice: null,
-      reply: null,
-      triggerUpload: false,
-      showSummary: true
-    };
+if (done?.isComplete && canProceed) {
+  if (photoUploaded) {
+    console.log("✅ Photo uploaded — proceeding to summary.");
+  } else if (photoSkipped) {
+    console.log("⏭️ Photo skipped — proceeding to summary.");
+  } else if (!photoRequired) {
+    console.log("📃 Photo not required — proceeding to summary.");
   }
+
+  return {
+    isComplete: true,
+    nextStep: "submit_summary",
+    missingFields: [],
+    aiFieldChoice: null,
+    reply: null,
+    triggerUpload: false,
+    showSummary: true
+  };
+}
+
 
   // Fallback — wait
   return {
@@ -112,3 +126,4 @@ ${conversation.map(m => `${m.role === 'user' ? 'User' : 'Solomon'}: ${m.content}
 }
 
 module.exports = MonitorAI;
+

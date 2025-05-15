@@ -13,9 +13,13 @@ async function intakeExtractor(conversation) {
     intakePrompt = "Extract JSON intake fields from this message: {{message}}";
   }
 
-  const transcript = conversation
-    .map(entry => `${entry.role === "user" ? "User" : "Solomon"}: ${entry.content}`)
-    .join("\n");
+  const safeConversation = Array.isArray(conversation) ? conversation : [];
+  const transcript = safeConversation
+  .filter(entry => entry.role === "user")
+  .map(entry => `User: ${entry.content}`)
+  .join("\n");
+
+
 
   const finalPrompt = intakePrompt.replace("{{message}}", transcript);
 
@@ -36,9 +40,11 @@ async function intakeExtractor(conversation) {
       "full_name",
       "email",
       "phone",
-      "garage_goals",
+      "location",
+      "goals",
       "square_footage",
       "must_have_features",
+      "preferred_materials",
       "budget",
       "start_date",
       "final_notes"
@@ -47,19 +53,29 @@ async function intakeExtractor(conversation) {
     const acceptedShortAnswers = ["no", "none", "nope", "nothing else"];
 
   const isValid = (value) => {
-  if (!value) return false;
+  if (typeof value !== "string") return false;
   const cleaned = value.trim().toLowerCase();
   return cleaned !== "";
 };
 
+
     
     // ✅ Normalize short acceptable answers for final_notes
-    if (parsedFields.final_notes) {
-      const shortAnswer = parsedFields.final_notes.toLowerCase().trim();
-      if (["no", "none", "nope", "nothing else", "n/a"].includes(shortAnswer)) {
-        parsedFields.final_notes = "nothing else";
-      }
-    }
+   const normalizeNo = (val) => {
+  const cleaned = val?.toLowerCase().trim();
+  return ["no", "none", "nope", "nothing else", "n/a", "not sure", "i don't have any"].includes(cleaned);
+};
+
+// Normalize final_notes
+if (parsedFields.final_notes && normalizeNo(parsedFields.final_notes)) {
+  parsedFields.final_notes = "nothing else";
+}
+
+// Normalize preferred_materials
+if (parsedFields.preferred_materials && normalizeNo(parsedFields.preferred_materials)) {
+  parsedFields.preferred_materials = "Open to suggestions";
+}
+
 
     const readyForCheck = requiredKeys.every(key => isValid(parsedFields[key]));
 

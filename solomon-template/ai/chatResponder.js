@@ -1,4 +1,3 @@
-
 require("dotenv").config();
 const OpenAI = require("openai");
 const fs = require("fs");
@@ -24,7 +23,7 @@ async function chatResponder(messageHistory, missingFields = [], sessionMemory =
   // Smart photo request trigger
   const intakeData = sessionMemory.intakeData || {};
   const isIntakeComplete = sessionMemory.doneCheckerComplete === true;
-  const alreadyHasPhoto = intakeData.garage_photo_upload || sessionMemory.photoUploaded;
+  const alreadyHasPhoto = intakeData.photo_upload || sessionMemory.photoUploaded;
 
   if (isIntakeComplete && !alreadyHasPhoto && !sessionMemory.photoRequested) {
     sessionMemory.photoRequested = true;
@@ -35,14 +34,19 @@ async function chatResponder(messageHistory, missingFields = [], sessionMemory =
     };
   }
 
-  // Standard AI completion
+  // Sanitize messages
+  const cleanedMessages = [
+    { role: "system", content: solomonPrompt },
+    ...messageHistory.map(m => ({
+      role: m.role,
+      content: typeof m.content === "string" ? m.content : JSON.stringify(m.content)
+    }))
+  ];
+
   try {
     const completion = await openai.chat.completions.create({
       model: "gpt-4",
-      messages: [
-        { role: "system", content: solomonPrompt },
-        ...messageHistory
-      ]
+      messages: cleanedMessages
     });
 
     return {

@@ -41,9 +41,11 @@
       "full_name",
       "email",
       "phone",
-      "garage_goals",
+      "location",
+      "goals",
       "square_footage",
       "must_have_features",
+      "preferred_materials",
       "budget",
       "start_date",
       "final_notes"
@@ -59,31 +61,11 @@
     "label": "Continue Chat After Intake Completion",
     "enabled": true
   },
-"photoField": {
-  "type": "text",
-  "label": "Photo Field Name",
-  "value": "photo"
-},
-"photoPrompt": {
-  "type": "text",
-  "label": "Photo Upload Prompt",
-  "value": "📸 Upload a quick photo, or hit skip to finish."
-},
-"completeMessage": {
-  "type": "text",
-  "label": "Completion Message",
-  "value": "✅ All done! Submitting your project summary."
-},
-"generatePdfWithoutPhoto": {
-  "type": "toggle",
-  "label": "Allow PDF Generation Without Photo",
-  "enabled": true
-},
- "chatResponderPrompt": {
+  "chatResponderPrompt": {
     "type": "textarea",
     "label": "Chat Responder Prompt",
     "value": "You are a helpful AI assistant that guides users through a garage intake process..."
-},
+  },
   "intakeExtractorPrompt": {
     "type": "textarea",
     "label": "Intake Extractor Prompt",

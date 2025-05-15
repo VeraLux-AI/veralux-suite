@@ -1,9 +1,8 @@
-
 const { PDFDocument, StandardFonts, rgb } = require('pdf-lib');
 const fs = require('fs');
 const path = require('path');
 
-async function generateSummaryPDF(data, photos = [], requiredFields = [], fieldLabels = {}, fieldGroups = {}) {
+async function generateSummaryPDF(data, photos = []) {
   const pdfDoc = await PDFDocument.create();
   const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
   const fontSize = 12;
@@ -52,24 +51,6 @@ async function generateSummaryPDF(data, photos = [], requiredFields = [], fieldL
     });
   };
 
-  function wrapText(text, maxWidth, font, fontSize) {
-    const words = text.split(' ');
-    const lines = [];
-    let currentLine = '';
-    for (let word of words) {
-      const testLine = currentLine ? `${currentLine} ${word}` : word;
-      const testWidth = font.widthOfTextAtSize(testLine, fontSize);
-      if (testWidth < maxWidth) {
-        currentLine = testLine;
-      } else {
-        lines.push(currentLine);
-        currentLine = word;
-      }
-    }
-    if (currentLine) lines.push(currentLine);
-    return lines;
-  }
-
   const createStyledPage = () => {
     const page = pdfDoc.addPage();
     drawWatermark(page);
@@ -78,72 +59,100 @@ async function generateSummaryPDF(data, photos = [], requiredFields = [], fieldL
 
   let page = createStyledPage();
   const { width, height } = page.getSize();
+
   let y = drawHeaderWithLogo(page, logoImage) || height - 160;
 
   function checkPageSpace(requiredHeight = 60) {
-    if (y < requiredHeight) {
-      page = createStyledPage();
-      y = drawHeaderWithLogo(page, logoImage) || height - 160;
-    }
+  if (y < requiredHeight) {
+    page = createStyledPage();
+    y = drawHeaderWithLogo(page, logoImage) || height - 160;
   }
+}
 
   const writeSectionTitle = (text) => {
     page.drawText(text, {
       x: 50,
       y,
-      size: fontSize + 2,
+      size: fontSize + 1,
       font,
       color: rgb(0.7, 0, 0),
     });
-    y -= 24;
+    y -= 20;
   };
 
-  const writeField = (label, value) => {
-    const content = value || 'N/A';
-    page.drawText(label + ':', {
-      x: 50,
-      y,
-      size: fontSize,
-      font,
-      color: rgb(0.2, 0.2, 0.2),
-    });
-    y -= 16;
-    checkPageSpace();
-    const maxWidth = width - 100;
-    const wrappedLines = wrapText(content, maxWidth, font, fontSize);
-    for (let line of wrappedLines) {
-      checkPageSpace();
-      page.drawText(line, {
-        x: 70,
-        y,
-        size: fontSize,
-        font,
-      });
-      y -= 16;
-    }
-    y -= 8;
-    checkPageSpace();
-  };
+function wrapText(text, maxWidth, font, fontSize) {
+  const words = text.split(' ');
+  const lines = [];
+  let currentLine = '';
 
-  // Render grouped fields if provided
-  if (Object.keys(fieldGroups).length > 0) {
-    for (const [section, fields] of Object.entries(fieldGroups)) {
-      writeSectionTitle(section);
-      fields.forEach(field => {
-        if (requiredFields.includes(field)) {
-          const label = fieldLabels[field] || field;
-          writeField(label, data[field]);
-        }
-      });
-    }
-  } else {
-    // fallback: flat list
-    writeSectionTitle("Submission Summary");
-    for (const field of requiredFields) {
-      const label = fieldLabels[field] || field;
-      writeField(label, data[field]);
+  for (let word of words) {
+    const testLine = currentLine ? `${currentLine} ${word}` : word;
+    const testWidth = font.widthOfTextAtSize(testLine, fontSize);
+
+    if (testWidth < maxWidth) {
+      currentLine = testLine;
+    } else {
+      lines.push(currentLine);
+      currentLine = word;
     }
   }
+
+  if (currentLine) lines.push(currentLine);
+  return lines;
+}
+
+  
+  const writeField = (label, value) => {
+  const labelText = `${label}:`;
+  const content = value || 'N/A';
+
+  // Draw label
+  page.drawText(labelText, {
+    x: 50,
+    y,
+    size: fontSize,
+    font,
+    color: rgb(0.2, 0.2, 0.2)
+  });
+  y -= 16;
+  checkPageSpace();
+
+  // Manual word wrap (approximation)
+  const maxWidth = width - 100;
+  const wrappedLines = wrapText(content, maxWidth, font, fontSize);
+
+  for (let line of wrappedLines) {
+    checkPageSpace();
+    page.drawText(line, {
+      x: 70,
+      y,
+      size: fontSize,
+      font
+    });
+    y -= 16;
+  }
+
+  y -= 8;
+  checkPageSpace();
+};
+
+
+  writeSectionTitle("Client Information");
+  writeField("Full Name", data.full_name);
+  writeField("Email", data.email);
+  writeField("Phone", data.phone);
+  writeField("Location", data.location);
+
+  writeSectionTitle("Garage Project Overview");
+  writeField("Client Vision for the Garage", data.goals);
+  writeField("Garage Dimensions", `${data.square_footage} sq ft`);
+  writeField("Estimated Investment Range", `$${data.budget}`);
+
+  writeSectionTitle("Key Requirements");
+  writeField("Must-Have Features", data.must_have_features);
+  writeField("Preferred Start Date", data.start_date);
+  writeField("Preferred Materials", data.preferred_materials);
+  writeField("Final Notes", data.final_notes);
 
   page.drawText(`Phone: ${data.phone || 'N/A'}   Web: elevatedgarage.com`, {
     x: 50,
@@ -159,29 +168,33 @@ async function generateSummaryPDF(data, photos = [], requiredFields = [], fieldL
       ? await pdfDoc.embedPng(imgBytes)
       : await pdfDoc.embedJpg(imgBytes);
     const imgPage = createStyledPage();
-    imgPage.drawText("Uploaded Photo", {
-      x: 50,
-      y: imgPage.getHeight() - 40,
-      size: fontSize + 1,
-      font,
-      color: rgb(0.7, 0, 0),
-    });
-    const maxWidth = imgPage.getWidth() - 100;
-    const maxHeight = imgPage.getHeight() - 140;
-    const scaled = img.scale(1);
-    let finalWidth = scaled.width;
-    let finalHeight = scaled.height;
-    if (finalWidth > maxWidth || finalHeight > maxHeight) {
-      const scaleFactor = Math.min(maxWidth / finalWidth, maxHeight / finalHeight);
-      finalWidth *= scaleFactor;
-      finalHeight *= scaleFactor;
-    }
-    imgPage.drawImage(img, {
-      x: (imgPage.getWidth() - finalWidth) / 2,
-      y: (imgPage.getHeight() - finalHeight) / 2 - 20,
-      width: finalWidth,
-      height: finalHeight,
-    });
+   imgPage.drawText("Uploaded Photo", {
+  x: 50,
+  y: imgPage.getHeight() - 40,
+  size: fontSize + 1,
+  font,
+  color: rgb(0.7, 0, 0),
+});
+
+const maxWidth = imgPage.getWidth() - 100;
+const maxHeight = imgPage.getHeight() - 140;
+
+const scaled = img.scale(1);
+let finalWidth = scaled.width;
+let finalHeight = scaled.height;
+
+if (finalWidth > maxWidth || finalHeight > maxHeight) {
+  const scaleFactor = Math.min(maxWidth / finalWidth, maxHeight / finalHeight);
+  finalWidth *= scaleFactor;
+  finalHeight *= scaleFactor;
+}
+
+imgPage.drawImage(img, {
+  x: (imgPage.getWidth() - finalWidth) / 2,
+  y: (imgPage.getHeight() - finalHeight) / 2 - 20,
+  width: finalWidth,
+  height: finalHeight,
+});
   }
 
   const pdfBytes = await pdfDoc.save();

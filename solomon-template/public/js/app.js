@@ -10,6 +10,7 @@ document.getElementById("input-field")?.addEventListener("keydown", function (e)
 // update from 'user-input'
 const chatLog = document.getElementById('chat-log');
 appendMessage("Solomon", "👋 Hey there! Before we get started, I have a few quick questions to help design your perfect garage.");
+
 const dragArea = document.getElementById("drag-area");
 const fileInput = document.getElementById("file-upload");
 const submitBtn = document.getElementById("photo-submit");
@@ -57,9 +58,10 @@ function shouldTriggerPhotoStep(data) {
     "full_name",
     "email",
     "phone",
-    "garage_goals",
+    "goals",
     "square_footage",
     "must_have_features",
+    "preferred_materials",
     "budget",
     "start_date",
     "final_notes"
@@ -68,7 +70,7 @@ function shouldTriggerPhotoStep(data) {
   const basicComplete = requiredFields.every(field => data[field] && data[field].trim() !== "");
 
   // ✅ Only trigger photo step if it's still missing
-  const photoIncomplete = !data.garage_photo_upload || data.garage_photo_upload.trim() === "";
+  const photoIncomplete = !data.photo_upload || data.photo_upload.trim() === "";
 
   return basicComplete && photoIncomplete;
 }
@@ -77,9 +79,9 @@ function shouldTriggerPhotoStep(data) {
 // Check if all required fields are filled
 function isIntakeComplete(data) {
   const filledCount = [
-    data.full_name, data.email, data.phone,
-    data.garage_goals, data.square_footage,
-    data.must_have_features, data.budget,
+    data.full_name, data.email, data.phone, data.location,
+    data.goals, data.square_footage,
+    data.must_have_features, data.prefered_materials, data.budget,
     data.start_date, data.final_notes
   ].filter(Boolean).length;
   return filledCount === 9;
@@ -96,13 +98,15 @@ function showSummary(data) {
     <p><strong>Full Name:</strong> ${data.full_name || 'N/A'}</p>
     <p><strong>Email:</strong> ${data.email || 'N/A'}</p>
     <p><strong>Phone:</strong> ${data.phone || 'N/A'}</p>
-    <p><strong>Garage Goals:</strong> ${data.garage_goals || 'N/A'}</p>
+    <p><strong>Location:</strong> ${data.location || 'N/A'}</p>
+    <p><strong>Goals:</strong> ${data.goals || 'N/A'}</p>
     <p><strong>Square Footage:</strong> ${data.square_footage || 'N/A'}</p>
     <p><strong>Must-Have Features:</strong> ${data.must_have_features || 'N/A'}</p>
+    <p><strong>Must-Preferred Materials:</strong> ${data.preferred_materials || 'N/A'}</p>
     <p><strong>Budget:</strong> ${data.budget || 'N/A'}</p>
     <p><strong>Start Date:</strong> ${data.start_date || 'N/A'}</p>
     <p><strong>Final Notes:</strong> ${data.final_notes || 'N/A'}</p>
-    <p><strong>Garage Photo Upload:</strong> ${data.garage_photo_upload || 'N/A'}</p>
+    <p><strong>Photo Upload:</strong> ${data.photo_upload || 'N/A'}</p>
   `;
 
   modal.classList.remove('fade-out', 'hidden');
@@ -148,9 +152,14 @@ form?.addEventListener('submit', async (e) => {
     hideTyping();
 
     const data = await res.json();
-    appendMessage('Solomon', data.reply);
 
-    if (data.triggerUpload) {
+    // ✅ Corrected location for safety check
+    if (typeof data.reply === 'string') {
+      appendMessage('Solomon', data.reply);
+    }
+
+    if (data.triggerUpload && !window.photoAlreadyUploaded) {
+        window.photoAlreadyUploaded = true;
       const uploader = document.getElementById("photo-uploader");
       if (uploader) {
         openPhotoUploader();
@@ -263,13 +272,16 @@ const intakeFieldPrompts = {
   full_name: "What’s your full name?",
   email: "Could you provide your email address?",
   phone: "What’s the best phone number to reach you at?",
-  garage_goals: "Tell me a bit about your garage goals. What would you love to see?",
+  location: "Where is the garage located?",
+  goals: "Tell me a bit about your goals. What would you love to see?",
   square_footage: "Approximately how many square feet is your garage?",
   must_have_features: "What are your must-have features?",
+  preferred_materials: "Do you have any preferred materials or finishes?",
   budget: "What’s your ideal budget for this garage project?",
   start_date: "When are you hoping to get started?",
   final_notes: "Any final notes or specific requests you'd like us to know?"
 };
+
 
 function getMissingFields(data) {
   return Object.keys(intakeFieldPrompts).filter(field => {
@@ -357,7 +369,8 @@ async function finalizeIntakeFlow() {
     console.log("📦 Intake data received:", data);
     console.log("🔍 shouldTriggerPhotoStep:", shouldTriggerPhotoStep(data));
 
-   if (shouldTriggerPhotoStep(data)) {
+if (shouldTriggerPhotoStep(data) && !window.photoAlreadyUploaded) {
+  window.photoAlreadyUploaded = true;
   console.log("📸 Attempting to show photo uploader...");
   const uploader = document.getElementById("photo-uploader");
   if (uploader) {
@@ -367,6 +380,7 @@ async function finalizeIntakeFlow() {
   } else {
     console.warn("❌ #photo-uploader not found in DOM.");
   }
+
 } else if (data.show_summary || data.summary_submitted) {
 
   summaryAlreadySubmitted = true;
@@ -449,3 +463,38 @@ document.getElementById('close-summary')?.addEventListener('click', () => {
   }
 });
 
+
+// ✅ Auto-start intake if this is a new session and chat is empty
+window.addEventListener('DOMContentLoaded', async () => {
+  const hasMessages = document.querySelectorAll('.message').length > 0;
+  if (!hasMessages) {
+    console.log("🚀 Triggering AI kickoff message...");
+    showTyping();
+    try {
+      const res = await fetch('/message', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-session-id': sessionId
+        },
+        body: JSON.stringify({ message: "__init__" }) // neutral trigger
+      });
+      hideTyping();
+      const data = await res.json();
+      if (typeof data.reply === 'string') {
+        appendMessage('Solomon', data.reply);
+      }
+      if (data.triggerUpload && !window.photoAlreadyUploaded) {
+        window.photoAlreadyUploaded = true;
+        const uploader = document.getElementById("photo-uploader");
+        if (uploader) {
+          openPhotoUploader();
+          uploader.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+      }
+    } catch (err) {
+      hideTyping();
+      console.error("❌ Failed to start AI conversation:", err);
+    }
+  }
+});
