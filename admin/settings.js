@@ -276,22 +276,26 @@ window.onload = async () => {
   toggleLoading(false);
 };
 
+
 async function provisionCompany() {
   if (!selectedCompany) return showToast("❌ No company selected", false);
+
+  // Sanitize name for shell/file safety
+  const safeName = selectedCompany.replace(/[^a-zA-Z0-9_-]/g, '-');
 
   try {
     toggleLoading(true);
     const res = await fetch('/admin/provision-company', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ company: selectedCompany })
+      body: JSON.stringify({ company: safeName })
     });
 
     const result = await res.json();
     toggleLoading(false);
 
     if (result.success) {
-      showToast("✅ Provisioned Solomon for " + selectedCompany);
+      showToast("✅ Provisioned Solomon for " + safeName);
       console.log(result.output);
     } else {
       showToast("❌ Provisioning failed", false);
