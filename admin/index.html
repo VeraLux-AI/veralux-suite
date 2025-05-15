@@ -60,88 +60,93 @@
     <p class="text-center text-base text-gray-700 font-medium">AI Licensing & Client Controls</p>
   </header>
 
-  <main class="max-w-6xl mx-auto p-6 space-y-12">
-  <section class="glass-panel rounded-2xl p-6 space-y-4">
-  <h2 class="text-2xl font-semibold mb-4 gold-gradient-text section-heading">📋 Existing Deployments</h2>
-  <div id="deployment-list" class="space-y-4">
-    <!-- Loaded dynamically via JS -->
-  </div>
-</section>
+  
+<main class="max-w-7xl mx-auto p-6">
+  <div class="grid grid-cols-1 xl:grid-cols-2 gap-8 auto-rows-max">
 
-    <section class="glass-panel rounded-2xl p-6">
-      <h2 class="text-2xl font-semibold mb-4 gold-gradient-text section-heading">➕ Add New Company</h2>
-      <div class="flex flex-col sm:flex-row gap-4">
-        <input id="new-company-name" placeholder="e.g. brightbuild"
-               class="flex-1 px-4 py-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#BFA15A]" />
-        <button onclick="createCompany()" class="btn-gold px-6 py-3 rounded transition">➕ Create</button>
+    <!-- PANEL 1: Company Setup -->
+    <section class="glass-panel rounded-2xl p-6 space-y-6">
+      <h2 class="text-2xl font-semibold gold-gradient-text section-heading">🏢 Company Setup</h2>
+      <div>
+        <label class="block mb-1 text-sm text-gray-700">Add New Company</label>
+        <div class="flex flex-col sm:flex-row gap-4">
+          <input id="new-company-name" placeholder="e.g. brightbuild"
+                class="flex-1 px-4 py-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#BFA15A]" />
+          <button onclick="createCompany()" class="btn-gold px-6 py-3 rounded transition">➕ Create</button>
+        </div>
+      </div>
+      <div>
+        <label class="block mb-1 text-sm text-gray-700">Select Existing Company</label>
+        <select id="company-select"
+                class="w-full border px-4 py-3 rounded focus:outline-none focus:ring-2 focus:ring-[#BFA15A] bg-white"></select>
       </div>
     </section>
 
-    <section class="glass-panel rounded-2xl p-6">
-      <h2 class="text-2xl font-semibold mb-4 gold-gradient-text section-heading">🏢 Select Company</h2>
-      <select id="company-select"
-              class="w-full border px-4 py-3 rounded focus:outline-none focus:ring-2 focus:ring-[#BFA15A] bg-white"></select>
-    </section>
-
-    <section class="glass-panel rounded-2xl p-6 space-y-4">
-      <h2 class="text-xl font-semibold text-indigo-700 section-heading">🎨 Upload Company Logo</h2>
-      <input type="file" id="logo-upload" accept="image/*"
-             class="block w-full text-sm text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"/>
-      <div id="branding-group" class="mt-4"></div>
+    <!-- PANEL 2: Branding -->
+    <section class="glass-panel rounded-2xl p-6 space-y-6">
+      <h2 class="text-2xl font-semibold gold-gradient-text section-heading">🎨 Branding</h2>
+      <div>
+        <label class="block mb-1 text-sm text-gray-700">Upload Logo</label>
+        <input type="file" id="logo-upload" accept="image/*"
+              class="block w-full text-sm text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"/>
+      </div>
+      <div id="branding-group"></div>
       <div id="brand-colors" class="color-preview-section"></div>
     </section>
 
+    <!-- PANEL 3: Settings & Prompts -->
     <section class="glass-panel rounded-2xl p-6 space-y-6">
-      <h2 class="text-2xl font-semibold mb-4 gold-gradient-text section-heading">🔧 Client Settings</h2>
+      <h2 class="text-2xl font-semibold gold-gradient-text section-heading">⚙️ Settings & Prompts</h2>
       <div id="toggle-group" class="space-y-4"></div>
       <div id="list-group" class="space-y-4"></div>
       <div id="sync-status" class="mt-2 text-sm text-green-600 font-medium hidden">💾 Synced with Intake Extractor</div>
       <div id="textarea-group" class="space-y-4"></div>
-      <div class="pt-4">
+
+      <div class="border-t pt-4">
+        <h3 class="text-lg font-semibold mb-2 text-indigo-700">🧠 Generate Prompts</h3>
+        <div class="grid grid-cols-1 gap-3">
+          <input id="prompt-purpose" placeholder="What should the AI do?"
+                class="border px-4 py-3 rounded focus:outline-none focus:ring-2 focus:ring-[#BFA15A]" />
+          <input id="prompt-business" placeholder="e.g. roofing contractor"
+                class="border px-4 py-3 rounded focus:outline-none focus:ring-2 focus:ring-[#BFA15A]" />
+          <input id="prompt-tone" placeholder="Tone (optional, e.g. friendly)"
+                class="border px-4 py-3 rounded focus:outline-none focus:ring-2 focus:ring-[#BFA15A]" />
+          <div class="flex gap-3 pt-2">
+            <button onclick="generatePrompt()" class="btn-gold px-4 py-2 rounded">✨ Generate</button>
+            <button onclick="saveGeneratedPrompt()" class="btn-gold px-4 py-2 rounded">💾 Save</button>
+          </div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
+          <textarea id="prompt-output-chat" rows="5"
+                    class="w-full border px-3 py-2 rounded font-mono text-sm focus:outline-none focus:ring-2 focus:ring-[#BFA15A]"
+                    placeholder="Chat Responder Prompt..."></textarea>
+          <textarea id="prompt-output-extract" rows="5" disabled
+                    class="w-full border px-3 py-2 rounded font-mono text-sm bg-gray-100 text-gray-500"
+                    placeholder="Intake Extractor Prompt (system-generated)..."></textarea>
+        </div>
+      </div>
+
+      <div class="text-right pt-4">
         <button onclick="saveSettings()" class="btn-gold px-6 py-3 rounded transition">💾 Save Settings</button>
       </div>
     </section>
 
+    <!-- PANEL 4: Deployments -->
     <section class="glass-panel rounded-2xl p-6 space-y-6">
-      <h2 class="text-2xl font-semibold gold-gradient-text section-heading">🤖 Generate AI Prompts</h2>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <input id="prompt-purpose" placeholder="What should the AI do?"
-               class="col-span-1 border px-4 py-3 rounded focus:outline-none focus:ring-2 focus:ring-[#BFA15A]" />
-        <input id="prompt-business" placeholder="e.g. roofing contractor"
-               class="col-span-1 border px-4 py-3 rounded focus:outline-none focus:ring-2 focus:ring-[#BFA15A]" />
-        <input id="prompt-tone" placeholder="Tone (optional, e.g. friendly)"
-               class="col-span-1 border px-4 py-3 rounded focus:outline-none focus:ring-2 focus:ring-[#BFA15A]" />
-      </div>
-      <div class="flex gap-4 flex-col sm:flex-row">
-        <button onclick="generatePrompt()" class="btn-gold px-6 py-3 rounded transition w-full sm:w-auto">✨ Generate Prompts</button>
-        <button onclick="saveGeneratedPrompt()" class="btn-gold px-6 py-3 rounded transition w-full sm:w-auto">💾 Save to Settings</button>
-      </div>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Chat Responder Prompt</label>
-          <textarea id="prompt-output-chat" rows="6"
-                    class="w-full border px-4 py-3 rounded font-mono text-sm focus:outline-none focus:ring-2 focus:ring-[#BFA15A]"
-                    placeholder="Generated prompt for how the AI should talk..."></textarea>
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1 opacity-50">Intake Extractor Prompt (static)</label>
-          <textarea id="prompt-output-extract" rows="6" disabled
-                    class="w-full border px-4 py-3 rounded font-mono text-sm bg-gray-100 text-gray-500 focus:outline-none"
-                    placeholder="This is set by the system and can't be changed."></textarea>
-        </div>
+      <h2 class="text-2xl font-semibold gold-gradient-text section-heading">🚀 Deployments</h2>
+      <div id="deployment-list" class="space-y-4"></div>
+      <div class="text-center pt-4 border-t">
+        <p class="text-sm text-gray-700 mb-4 pt-2">You're ready. Click below to provision Solomon to the cloud.</p>
+        <button onclick="provisionCompany()"
+                class="bg-green-600 text-white px-8 py-4 rounded-lg hover:bg-green-700 transition shadow-xl font-semibold">
+          ✅ Final Step: Provision Solomon
+        </button>
       </div>
     </section>
 
-    <section class="glass-panel rounded-2xl p-6 text-center">
-      <h2 class="text-2xl font-semibold gold-gradient-text section-heading mb-4">🚀 Ready to Deploy?</h2>
-      <p class="text-sm text-gray-700 mb-4">You've configured everything. Now click below to provision Solomon to the cloud.</p>
-      <button onclick="provisionCompany()"
-              class="bg-green-600 text-white px-8 py-4 rounded-lg hover:bg-green-700 transition shadow-xl font-semibold">
-        ✅ Final Step: Provision Solomon
-      </button>
-    </section>
+  </div>
+</main>
 
-  </main>
 
   <script src="settings.js"></script>
 </body>
