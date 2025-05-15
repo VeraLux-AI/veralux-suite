@@ -3,6 +3,38 @@ const express = require('express');
 const multer = require('multer');
 const cors = require('cors');
 require('dotenv').config();
+const fetch = require('node-fetch');
+const fs = require('fs');
+
+// === Remote Config Setup ===
+let adminConfig = {};
+const DEPLOYMENT_ID = process.env.DEPLOYMENT_ID || "solomon-default";
+const CONFIG_URL = process.env.CONFIG_URL || "https://portal.veralux.ai/config/" + DEPLOYMENT_ID;
+const CONFIG_API_KEY = process.env.CONFIG_API_KEY || "";
+
+async function loadAdminConfig() {
+  try {
+    if (process.env.USE_REMOTE_CONFIG === "true") {
+      const response = await fetch(CONFIG_URL, {
+        headers: { Authorization: `Bearer ${CONFIG_API_KEY}` }
+      });
+
+      if (!response.ok) throw new Error(`Remote config fetch failed: ${response.status}`);
+      adminConfig = await response.json();
+      console.log("✅ Loaded remote adminConfig");
+    } else {
+      throw new Error("Remote config disabled");
+    }
+  } catch (err) {
+    try {
+      adminConfig = require('./admin/admin-config.json');
+      console.warn("⚠️ Using local admin-config.json due to:", err.message);
+    } catch (fallbackErr) {
+      console.error("❌ Failed to load any admin config:", fallbackErr.message);
+      adminConfig = {}; // fallback to empty config
+    }
+  }
+}
 const path = require('path');
 
 // Load adminConfig with fallback
@@ -43,6 +75,7 @@ const {
 
 // Admin portal
 const { router: adminRoutes, logClientActivity } = require('./admin/admin.routes'); 
+await loadAdminConfig();
 const app = express();
 const port = process.env.PORT || 10000;
 
