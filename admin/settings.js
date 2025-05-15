@@ -277,21 +277,32 @@ window.onload = async () => {
 };
 
 
+
 async function provisionCompany() {
   if (!selectedCompany) return showToast("❌ No company selected", false);
 
-  // Sanitize name for shell/file safety
+  // Sanitize name
   const safeName = selectedCompany.replace(/[^a-zA-Z0-9_-]/g, '-');
 
   try {
     toggleLoading(true);
+    
     const res = await fetch('/admin/provision-company', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ company: safeName })
     });
 
-    const result = await res.json();
+    let result;
+    try {
+      result = await res.json();
+    } catch (e) {
+      const text = await res.text();
+      console.error("❌ Non-JSON response:", text);
+      showToast("❌ Server returned an error (not JSON)", false);
+      return;
+    }
+
     toggleLoading(false);
 
     if (result.success) {
