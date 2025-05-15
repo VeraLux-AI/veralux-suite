@@ -53,6 +53,13 @@
 </head>
 <body class="text-gray-800 min-h-screen relative">
 
+<div class="section">
+  <h2 class="section-title">📋 Existing Deployments</h2>
+  <div id="deployment-list" class="card-list">
+    <!-- Loaded dynamically via JS -->
+  </div>
+</div>
+
   <header class="glass-panel shadow p-6 border-b border-[#BFA15A]">
     <h1 class="text-4xl font-bold gold-gradient-text text-center tracking-wider section-heading">VeraLux Admin Portal</h1>
     <p class="text-center text-base text-gray-700 font-medium">AI Licensing & Client Controls</p>
@@ -140,3 +147,54 @@
 </html>
 
 
+
+<script>
+async function loadDeployments() {
+  try {
+    const res = await fetch('/admin/list-deployments');
+    const data = await res.json();
+    const container = document.getElementById('deployment-list');
+    container.innerHTML = '';
+
+    if (!data.success || !data.deployments.length) {
+      container.innerHTML = '<p>No deployments found.</p>';
+      return;
+    }
+
+    data.deployments.forEach(dep => {
+      const div = document.createElement('div');
+      div.className = 'card';
+      div.innerHTML = `
+        <h3>${dep.name}</h3>
+        <p>Last Updated: ${dep.lastUpdated}</p>
+        <p>API Key: ${dep.hasKey ? '✅ Exists' : '❌ Missing'}</p>
+        <button onclick="viewConfig('${dep.name}')">View Config</button>
+        <button onclick="redeploy('${dep.name}')">Redeploy</button>
+      `;
+      container.appendChild(div);
+    });
+  } catch (err) {
+    console.error("Failed to load deployments:", err);
+    document.getElementById('deployment-list').innerHTML = '<p>Error loading deployments.</p>';
+  }
+}
+
+async function viewConfig(name) {
+  const file = `/configs/${name}.json`;
+  window.open(file, '_blank');
+}
+
+async function redeploy(name) {
+  const confirmed = confirm(`Redeploy Solomon for ${name}?`);
+  if (!confirmed) return;
+  const res = await fetch('/admin/provision-company', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ company: name.replace('solomon-', '') })
+  });
+  const result = await res.json();
+  alert(result.success ? "Redeploy triggered successfully." : "Failed to redeploy.");
+}
+
+window.onload = loadDeployments;
+</script>

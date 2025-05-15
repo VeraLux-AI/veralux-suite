@@ -312,3 +312,30 @@ router.post('/extract-logo-colors', upload.single('logo'), async (req, res) => {
 
 module.exports = router;
 
+
+
+router.get('/list-deployments', (req, res) => {
+  const configsDir = path.join(__dirname, '..', 'configs');
+  try {
+    const files = fs.readdirSync(configsDir).filter(f => f.endsWith('.json'));
+
+    const deployments = files.map(file => {
+      const name = file.replace('.json', '');
+      const configPath = path.join(configsDir, file);
+      const keyPath = path.join(configsDir, `${name}.key`);
+      const hasKey = fs.existsSync(keyPath);
+      const stats = fs.statSync(configPath);
+      const lastUpdated = stats.mtime.toISOString().split('T')[0];
+      return {
+        name,
+        hasKey,
+        lastUpdated
+      };
+    });
+
+    res.json({ success: true, deployments });
+  } catch (err) {
+    console.error("Failed to list deployments:", err.message);
+    res.status(500).json({ success: false, error: 'Failed to read deployments' });
+  }
+});
