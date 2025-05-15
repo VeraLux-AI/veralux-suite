@@ -1,0 +1,25 @@
+{
+  "env": {
+    "COMPANY_ID": "{{COMPANY_ID}}",
+    "GDRIVE_FOLDER_ID": "{{GDRIVE_FOLDER_ID}}",
+    "OPENAI_API_KEY": "{{VERALUX_HOSTED_KEY}}"
+  },
+  "branding": {
+    "logo": "branding/{{COMPANY_ID}}/logo.png",
+    "watermark": "branding/{{COMPANY_ID}}/wm.png",
+    "primaryColor": "{{PRIMARY_COLOR}}",
+    "accentColor": "{{ACCENT_COLOR}}"
+  },
+  "config": {
+    "fetch_settings_json": "https://portal.veralux.ai/admin/{{COMPANY_ID}}/settings.json",
+    "pdfLabels": {
+      "full_name": "Full Name",
+      "garage_goals": "Client Vision for the Garage"
+    }
+  },
+  "deployment": {
+    "github_repo": "solomon-{{COMPANY_ID}}",
+    "render_service_name": "solomon-{{COMPANY_ID}}",
+    "subdomain": "{{COMPANY_ID}}.solomon.veralux.ai"
+  }
+}
