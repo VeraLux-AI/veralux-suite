@@ -339,3 +339,30 @@ router.get('/list-deployments', (req, res) => {
     res.status(500).json({ success: false, error: 'Failed to read deployments' });
   }
 });
+
+const session = require('express-session');
+
+router.use(session({
+  secret: 'veralux-secret-key',
+  resave: false,
+  saveUninitialized: true
+}));
+
+function requireLogin(req, res, next) {
+  if (req.session.loggedIn) return next();
+  res.redirect('/admin/login.html');
+}
+
+router.get('/logout', (req, res) => {
+  req.session.destroy(() => res.redirect('/admin/login.html'));
+});
+
+router.post('/login', (req, res) => {
+  const password = req.body.password;
+  if (password === process.env.ADMIN_PASSWORD) {
+    req.session.loggedIn = true;
+    res.redirect('/admin');
+  } else {
+    res.status(401).send('Unauthorized');
+  }
+});
