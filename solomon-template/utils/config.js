@@ -1,11 +1,39 @@
-// utils/config.js
 const fetch = require('node-fetch');
 
-let remoteSettings = {
-  photoRequired: true,
-  generatePdfWithoutPhoto: false,
-  branding: "default",
-  fallbackEnabled: true
+let remoteSettings = {}; // dynamic, flexible structure
+
+const defaultSettings = {
+  intake: {
+    photoRequired: true,
+    generatePdfWithoutPhoto: false,
+    requiredFields: ["full_name", "email", "phone"]
+  },
+  ui: {
+    primaryColor: "#B91B21",
+    typingIndicator: true,
+    exitMessage: "Thanks for reaching out!"
+  },
+  branding: {
+    logoUrl: "/branding/default/logo.png",
+    watermarkUrl: "/branding/default/watermark.png"
+  },
+  submission: {
+    uploadToDrive: true,
+    emailTarget: "nick@yourcompany.com"
+  },
+  system: {
+    sessionPrefix: "EG-",
+    analyticsEnabled: false
+  },
+  modules: {
+    MonitorAI: {
+      fallbackEnabled: true
+    },
+    OCR: {
+      enabled: false,
+      languages: ["en"]
+    }
+  }
 };
 
 const CONFIG_URL = process.env.CONFIG_URL || 'https://veralux.ai/configs/elevatedgarage/settings.json';
@@ -14,27 +42,39 @@ async function fetchRemoteConfig() {
   try {
     const res = await fetch(CONFIG_URL);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const newConfig = await res.json();
+    const externalConfig = await res.json();
 
-    remoteSettings = {
-      ...remoteSettings,
-      ...newConfig // Merge new settings
-    };
-
-    console.log(`✅ Remote config fetched at ${new Date().toLocaleTimeString()}`);
+    // Deep merge: remote settings overwrite defaults
+    remoteSettings = deepMerge(defaultSettings, externalConfig);
+    console.log(`✅ Remote config loaded: ${new Date().toLocaleTimeString()}`);
   } catch (err) {
-    console.error(`⚠️ Config fetch failed: ${err.message}`);
+    console.error("⚠️ Failed to fetch remote config:", err.message);
   }
 }
 
-// Fetch immediately on load
-fetchRemoteConfig();
+function deepMerge(target, source) {
+  for (const key of Object.keys(source)) {
+    if (
+      source[key] &&
+      typeof source[key] === 'object' &&
+      !Array.isArray(source[key])
+    ) {
+      if (!target[key]) target[key] = {};
+      deepMerge(target[key], source[key]);
+    } else {
+      target[key] = source[key];
+    }
+  }
+  return target;
+}
 
-// Fetch again every 15 minutes
-setInterval(fetchRemoteConfig, 15 * 60 * 1000); // 15 min
+// Load now and on interval
+fetchRemoteConfig();
+setInterval(fetchRemoteConfig, 15 * 60 * 1000);
 
 function getConfig() {
   return remoteSettings;
 }
 
 module.exports = getConfig;
+
