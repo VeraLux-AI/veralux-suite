@@ -31,6 +31,25 @@ document.getElementById('company-select').addEventListener('change', async (e) =
   toggleLoading(false);
 });
 
+async function loadCompanyList() {
+  try {
+    const res = await fetch('/admin/list-companies');
+    const companies = await res.json();
+    const select = document.getElementById('company-select');
+    select.innerHTML = '';
+
+    companies.forEach(company => {
+      const option = document.createElement('option');
+      option.value = company;
+      option.textContent = company;
+      select.appendChild(option);
+    });
+  } catch (err) {
+    console.error("❌ Failed to load company list", err);
+  }
+}
+
+
 async function createCompany() {
   const input = document.getElementById('new-company-name');
   const name = input.value.trim().toLowerCase().replace(/\s+/g, '-');
