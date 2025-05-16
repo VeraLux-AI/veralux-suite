@@ -63,7 +63,10 @@ try {
   execSync(`git branch -M main`, { cwd: targetDir });
   execSync(`git remote add origin ${remoteUrl}`, { cwd: targetDir });
   execSync(`git add .`, { cwd: targetDir });
-  execSync(`git commit -m "Initial commit for ${repoName}"`, { cwd: targetDir });
+  
+execSync(`git config user.name "VeraLux AutoBot"`, { cwd: targetDir });
+execSync(`git config user.email "nick@veralux.ai"`, { cwd: targetDir });
+execSync(`git commit -m "Initial commit for ${repoName}"`, { cwd: targetDir });
   execSync(`git push -u origin main`, { cwd: targetDir });
 
   console.log(`✅ Repo pushed to GitHub: ${GITHUB_ORG}/${repoName}`);
