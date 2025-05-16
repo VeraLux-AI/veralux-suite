@@ -24,6 +24,24 @@ if (!company) {
 }
 
 const id = company.toLowerCase().replace(/\s+/g, '-');
+// === CREATE COMPANY via Admin Backend ===
+const fetch = require('node-fetch');
+
+const createRes = await fetch('http://localhost:3000/admin/create-company', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ company: id })
+});
+const createResult = await createRes.json();
+
+if (!createResult.success) {
+  console.error(`❌ Failed to create company: ${createResult.error}`);
+  process.exit(1);
+}
+
+const apiKey = createResult.apiKey;
+console.log(`🔐 API Key for ${id}: ${apiKey}`);
+
 const capId = id.charAt(0).toUpperCase() + id.slice(1);
 const repoName = `solomon-${id}`;
 const targetDir = path.join(OUTPUT_BASE, repoName);
