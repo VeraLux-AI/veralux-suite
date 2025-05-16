@@ -9,8 +9,7 @@
 .env.local
 *.env
 
-# Provisioned client builds
-/provisioned/
+
 
 # Logs
 npm-debug.log*
