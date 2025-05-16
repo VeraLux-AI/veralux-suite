@@ -169,26 +169,41 @@ router.post('/provision-company', (req, res) => {
   const rawCompany = req.body.company?.trim().toLowerCase();
   if (!rawCompany) return res.status(400).json({ error: 'Missing company name.' });
 
-  // ✅ Sanitize to remove unsafe characters
   const company = rawCompany.replace(/[^a-zA-Z0-9_-]/g, '-');
-
-  // === 🧪 Inject .env into the new provisioned folder ===
   const deploymentDir = path.join(__dirname, '..', 'provisioned', `solomon-${company}`);
   const envPath = path.join(deploymentDir, '.env');
   const envContent = [
-  'USE_REMOTE_CONFIG=true',
-  `DEPLOYMENT_ID=solomon-${company}`,
-  `CONFIG_URL=https://portal.veralux.ai/config/solomon-${company}`,
-  `CONFIG_API_KEY=${process.env.DEFAULT_CONFIG_API_KEY || 'replace-me'}`
-].join('\n');
+    'USE_REMOTE_CONFIG=true',
+    `DEPLOYMENT_ID=solomon-${company}`,
+    `CONFIG_URL=https://portal.veralux.ai/config/solomon-${company}`,
+    `CONFIG_API_KEY=${process.env.DEFAULT_CONFIG_API_KEY || 'replace-me'}`
+  ].join('\n');
 
   fs.mkdirSync(deploymentDir, { recursive: true });
   fs.writeFileSync(envPath, envContent);
+
   const command = `node provision-client.js --name ${company}`;
   exec(command, (error, stdout, stderr) => {
     if (error) return res.status(500).json({ error: error.message });
-    if (stderr) console.warn(stderr);
-    res.json({ success: true, output: stdout.trim() });
+
+    // ✅ Read deployment info from deployments.json
+    const deploymentsPath = path.join(__dirname, '..', 'deployments.json');
+    let deployments = {};
+    if (fs.existsSync(deploymentsPath)) {
+      deployments = JSON.parse(fs.readFileSync(deploymentsPath, 'utf8'));
+    }
+
+    const key = `solomon-${company}`;
+    const deployed = deployments[key] || {};
+
+    res.json({
+      success: true,
+      company,
+      output: stdout.trim(),
+      renderUrl: deployed.renderUrl || null,
+      githubRepo: deployed.githubRepo || null,
+      serviceId: deployed.serviceId || null
+    });
   });
 });
 
