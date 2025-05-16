@@ -97,6 +97,49 @@ execSync(`git commit -m "Initial commit for ${repoName}"`, { cwd: targetDir });
   execSync(`git push -u origin main`, { cwd: targetDir });
 
   console.log(`✅ Repo pushed to GitHub: ${GITHUB_ORG}/${repoName}`);
+
+  const envVarsObject = {
+  DEPLOYMENT_ID: id,
+  CONFIG_API_KEY: apiKey,
+  CONFIG_ENDPOINT: 'https://portal.veralux.ai/api/configs',
+  USE_REMOTE_CONFIG: 'true',
+  GDRIVE_FOLDER_ID: process.env.GDRIVE_FOLDER_ID || 'REPLACE_THIS'
+};
+
+const repoUrl = `https://github.com/${GITHUB_ORG}/${repoName}`;
+
+console.log("🌐 Creating Render Web Service...");
+try {
+  const { serviceId, url } = await createRenderService(id, repoUrl, envVarsObject);
+
+  const renderInfoPath = path.join(targetDir, 'render.json');
+  fs.writeFileSync(renderInfoPath, JSON.stringify({ serviceId, url }, null, 2));
+  console.log(`🌍 Render deployed: ${url}`);
+
+// === Update deployments.json ===
+const deploymentsPath = path.join(__dirname, 'deployments.json');
+let deployments = {};
+
+if (fs.existsSync(deploymentsPath)) {
+  deployments = JSON.parse(fs.readFileSync(deploymentsPath, 'utf8'));
+}
+
+deployments[`solomon-${id}`] = {
+  renderUrl: url,
+  serviceId: serviceId,
+  githubRepo: `https://github.com/${GITHUB_ORG}/${repoName}`
+};
+
+fs.writeFileSync(deploymentsPath, JSON.stringify(deployments, null, 2));
+console.log(`🗂 Saved to deployments.json`);
+
+
+  
+} catch (err) {
+  console.error("❌ Render deployment failed:", err.message);
+}
+
+  
 } catch (err) {
   console.error("❌ GitHub push failed:", err.message);
 }
