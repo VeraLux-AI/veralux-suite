@@ -102,13 +102,16 @@ router.post('/:company/save-settings', (req, res) => {
   }
 });
 
-// Create new company + default settings.json
+// Create new company + default settings.json + API key
 router.post('/create-company', (req, res) => {
+  const crypto = require('crypto');
   const company = req.body.company?.trim().toLowerCase().replace(/\s+/g, '-');
   if (!company) return res.status(400).json({ error: 'Invalid company name.' });
 
   const dir = path.join(__dirname, company);
   const configPath = CONFIG_PATH(company);
+  const configDir = path.join(__dirname, '..', 'configs');
+  const keyFile = path.join(configDir, `solomon-${company}.key`);
 
   if (fs.existsSync(configPath)) {
     return res.status(400).json({ error: 'Company already exists.' });
@@ -149,7 +152,12 @@ router.post('/create-company', (req, res) => {
   try {
     fs.mkdirSync(dir, { recursive: true });
     fs.writeFileSync(configPath, JSON.stringify(defaultSettings, null, 2));
-    res.status(200).json({ success: true });
+
+    fs.mkdirSync(configDir, { recursive: true });
+    const apiKey = crypto.randomUUID(); // you could also use randomBytes for longer keys
+    fs.writeFileSync(keyFile, apiKey);
+
+    res.status(200).json({ success: true, apiKey });
   } catch (err) {
     console.error("❌ Failed to create company:", err.message);
     res.status(500).json({ error: 'Failed to create company folder or config.' });
