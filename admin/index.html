@@ -190,9 +190,34 @@ async function loadDeployments() {
 }
 
 async function viewConfig(name) {
-  const file = `/configs/${name}.json`;
-  window.open(file, '_blank');
+  try {
+    const res = await fetch(`/api/configs/${name}`);
+    if (!res.ok) throw new Error("Config not found");
+
+    const data = await res.json();
+    const modal = document.createElement('div');
+    modal.style.position = 'fixed';
+    modal.style.top = '10%';
+    modal.style.left = '10%';
+    modal.style.width = '80%';
+    modal.style.height = '80%';
+    modal.style.background = 'white';
+    modal.style.border = '1px solid #ccc';
+    modal.style.padding = '1rem';
+    modal.style.overflow = 'auto';
+    modal.style.zIndex = '1000';
+    modal.style.boxShadow = '0 0 20px rgba(0,0,0,0.2)';
+    modal.innerHTML = `
+      <h2 class="text-xl font-bold mb-2">🔍 Config for ${name}</h2>
+      <pre style="white-space: pre-wrap; background:#f6f6f6; padding:1rem; border:1px solid #ddd; max-height:70%; overflow:auto;">${JSON.stringify(data, null, 2)}</pre>
+      <button onclick="this.parentElement.remove()" style="margin-top:1rem; background:#BFA15A; color:white; padding: 0.5rem 1rem; border:none;">Close</button>
+    `;
+    document.body.appendChild(modal);
+  } catch (err) {
+    alert("⚠️ Failed to load config.");
+  }
 }
+
 
 async function redeploy(name) {
   const confirmed = confirm(`Redeploy Solomon for ${name}?`);
