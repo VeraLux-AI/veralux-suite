@@ -167,14 +167,12 @@ router.post('/provision-company', (req, res) => {
   // === 🧪 Inject .env into the new provisioned folder ===
   const deploymentDir = path.join(__dirname, '..', 'provisioned', `solomon-${company}`);
   const envPath = path.join(deploymentDir, '.env');
-  const configKeyPath = path.join(__dirname, '..', 'configs', `solomon-${company}.key`);
-
   const envContent = [
-    'USE_REMOTE_CONFIG=true',
-    `DEPLOYMENT_ID=solomon-${company}`,
-    `CONFIG_URL=https://portal.veralux.ai/config/solomon-${company}`,
-    `CONFIG_API_KEY=${fs.readFileSync(configKeyPath, 'utf-8').trim()}`
-  ].join('\n');
+  'USE_REMOTE_CONFIG=true',
+  `DEPLOYMENT_ID=solomon-${company}`,
+  `CONFIG_URL=https://portal.veralux.ai/config/solomon-${company}`,
+  `CONFIG_API_KEY=${process.env.DEFAULT_CONFIG_API_KEY || 'replace-me'}`
+].join('\n');
 
   fs.mkdirSync(deploymentDir, { recursive: true });
   fs.writeFileSync(envPath, envContent);
