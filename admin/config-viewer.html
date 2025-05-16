@@ -1,0 +1,75 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>VeraLux Admin - Config Viewer</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 2rem;
+    }
+    button {
+      padding: 0.5rem 1rem;
+      background: gold;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    #configModal {
+      display: none;
+      position: fixed;
+      top: 10%;
+      left: 10%;
+      width: 80%;
+      height: 80%;
+      background: white;
+      border: 1px solid #ccc;
+      padding: 1rem;
+      overflow: auto;
+      z-index: 1000;
+      box-shadow: 0 0 20px rgba(0,0,0,0.3);
+    }
+    #configViewer {
+      white-space: pre-wrap;
+      background: #f6f6f6;
+      padding: 1rem;
+      border: 1px solid #ddd;
+      height: 80%;
+      overflow: auto;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Client Deployments</h2>
+  <button onclick="viewConfig('brightbuild')">View BrightBuild Config</button>
+  <button onclick="viewConfig('solomon-default')">View Solomon Default Config</button>
+
+  <div id="configModal">
+    <h3>Client Config</h3>
+    <pre id="configViewer">Loading...</pre>
+    <button onclick="closeConfig()">Close</button>
+  </div>
+
+  <script>
+    function viewConfig(clientId) {
+      fetch(`/api/configs/${clientId}`)
+        .then(res => res.json())
+        .then(data => {
+          document.getElementById('configViewer').textContent = JSON.stringify(data, null, 2);
+          document.getElementById('configModal').style.display = 'block';
+        })
+        .catch(err => {
+          document.getElementById('configViewer').textContent = "⚠️ Failed to load config.";
+          document.getElementById('configModal').style.display = 'block';
+        });
+    }
+
+    function closeConfig() {
+      document.getElementById('configModal').style.display = 'none';
+    }
+  </script>
+
+</body>
+</html>
