@@ -57,6 +57,15 @@ walk(targetDir);
 console.log(`🚀 Initialized: ${repoName}`);
 // === AUTOMATED GITHUB PUSH ===
 try {
+  
+  // === 🧠 Auto-create the GitHub repo before pushing
+  await octokit.repos.createInOrg({
+    org: GITHUB_ORG,
+    name: repoName,
+    private: true
+  });
+  console.log(`📡 Created GitHub repo: ${GITHUB_ORG}/${repoName}`);
+
   const remoteUrl = `https://${process.env.GITHUB_TOKEN}@github.com/${GITHUB_ORG}/${repoName}.git`;
 
   execSync(`git init`, { cwd: targetDir });
