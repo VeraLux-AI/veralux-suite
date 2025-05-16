@@ -210,10 +210,14 @@ userConversations[sessionId] = userConversations[sessionId].map(m => ({
   userConversations[sessionId].push({ role: 'assistant', content: assistantReply });
 
   // Run extractor AFTER GPT reply
-  const { fields } = await intakeExtractor(userConversations[sessionId]);
+  const requiredFields = adminConfig.intake?.requiredFields?.value || [];
 
-  let extractedSomething = false;
-  for (const key in fields) {
+const { fields } = await intakeExtractor(userConversations[sessionId], {
+  requiredFields
+});
+
+let extractedSomething = false;
+for (const key in fields) {
   const value = fields[key];
   const stringValue = typeof value === "string" ? value : String(value);
 
@@ -224,6 +228,7 @@ userConversations[sessionId] = userConversations[sessionId].map(m => ({
     extractedSomething = true;
   }
 }
+
 
 
   console.log("[intakeExtractor] Smart-merged updated intake:", userIntakeOverrides[sessionId]);
