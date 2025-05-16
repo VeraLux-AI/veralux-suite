@@ -4,13 +4,20 @@ const fs = require("fs");
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-async function chatResponder(messageHistory, missingFields = [], sessionMemory = {}) {
-  let solomonPrompt = "You are Solomon, a helpful assistant.";
+async function chatResponder(messageHistory, missingFields = [], sessionMemory = {}, adminConfig = {}) {
+
+let solomonPrompt = "You are Solomon, a helpful assistant.";
+
+if (adminConfig?.chatResponderPrompt?.value) {
+  solomonPrompt = adminConfig.chatResponderPrompt.value;
+} else {
   try {
     solomonPrompt = fs.readFileSync("./prompts/solomon-prompt.txt", "utf8");
   } catch (err) {
     console.warn("Prompt file missing or unreadable (chatResponder):", err.message);
   }
+}
+
 
   // If missing fields are provided, generate a natural re-ask message
   if (missingFields.length > 0) {
