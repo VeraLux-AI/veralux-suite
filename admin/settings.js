@@ -276,34 +276,37 @@ window.onload = async () => {
 async function provisionCompany() {
   if (!selectedCompany) return showToast("❌ No company selected", false);
 
-  // Sanitize name
   const safeName = selectedCompany.replace(/[^a-zA-Z0-9_-]/g, '-');
 
   try {
     toggleLoading(true);
-    
+
     const res = await fetch('/admin/provision-company', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ company: safeName })
     });
 
-    let resultText = await res.text();  // ✅ Read response body only once
-let result;
-try {
-  result = JSON.parse(resultText);  // ✅ Attempt to parse it as JSON
-} catch (e) {
-  console.error("❌ Non-JSON response:", resultText);
-  showToast("❌ Server returned an error (not JSON)", false);
-  return;
-}
-
+    const resultText = await res.text();
+    let result;
+    try {
+      result = JSON.parse(resultText);
+    } catch (e) {
+      console.error("❌ Non-JSON response:", resultText);
+      showToast("❌ Server returned an invalid response", false);
+      return;
+    }
 
     toggleLoading(false);
 
     if (result.success) {
-      showToast("✅ Provisioned Solomon for " + safeName);
+      const msgLines = [`✅ Solomon provisioned for "${safeName}"`];
+
+      if (result.renderUrl) msgLines.push(`🌍 Render URL: ${result.renderUrl}`);
+      if (result.githubRepo) msgLines.push(`📁 GitHub: ${result.githubRepo}`);
+
       console.log(result.output);
+      alert(msgLines.join('\n'));
     } else {
       showToast("❌ Provisioning failed", false);
       console.error(result.error);
