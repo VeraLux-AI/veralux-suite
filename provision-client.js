@@ -103,12 +103,18 @@ execSync(`git commit -m "Initial commit for ${repoName}"`, { cwd: targetDir });
 
 // === WRITE .env TO DEPLOYMENT ===
 const envPath = path.join(targetDir, '.env');
-fs.writeFileSync(envPath, [
+const envVars = [
   `DEPLOYMENT_ID=${id}`,
   `CONFIG_API_KEY=${apiKey}`,
-  `CONFIG_ENDPOINT=http://localhost:3000/api/configs`
-].join('\n'));
+  `CONFIG_ENDPOINT=https://portal.veralux.ai/api/configs`,
+  `USE_REMOTE_CONFIG=true`,
+  `GDRIVE_FOLDER_ID=${process.env.GDRIVE_FOLDER_ID || 'REPLACE_THIS'}`
+  // `STRIPE_SECRET_KEY=${process.env.STRIPE_SECRET_KEY || 'REPLACE_THIS'}` // optional
+];
+
+fs.writeFileSync(envPath, envVars.join('\n'));
 console.log(`📦 .env written to ${envPath}`);
+
 
 
 console.log(`Next: cd ${targetDir} && git init && git remote add origin git@github.com:${GITHUB_ORG}/${repoName}.git`);
