@@ -133,3 +133,32 @@ async function saveSettings() {
 }
 
 window.onload = loadSettings;
+
+async function provisionCompany() {
+  const select = document.getElementById("company-select");
+  const company = select?.value?.trim();
+  if (!company) return alert("Please select a company first.");
+
+  const confirmed = confirm(`Provision Solomon for "${company}"?`);
+  if (!confirmed) return;
+
+  try {
+    const res = await fetch('/admin/provision-company', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ company })
+    });
+
+    const result = await res.json();
+    if (result.success) {
+      alert(`✅ Provisioning complete for ${company}`);
+    } else {
+      console.error("❌ Server error:", result.error);
+      alert("❌ Provisioning failed. See console for details.");
+    }
+  } catch (err) {
+    console.error("❌ Network error:", err.message);
+    alert("❌ Failed to contact server.");
+  }
+}
+
