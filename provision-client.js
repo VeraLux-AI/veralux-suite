@@ -55,6 +55,22 @@ walk(targetDir);
 
 // === GIT + GITHUB LOGIC (OPTIONAL) ===
 console.log(`🚀 Initialized: ${repoName}`);
+// === AUTOMATED GITHUB PUSH ===
+try {
+  const remoteUrl = `https://${process.env.GITHUB_TOKEN}@github.com/${GITHUB_ORG}/${repoName}.git`;
+
+  execSync(`git init`, { cwd: targetDir });
+  execSync(`git branch -M main`, { cwd: targetDir });
+  execSync(`git remote add origin ${remoteUrl}`, { cwd: targetDir });
+  execSync(`git add .`, { cwd: targetDir });
+  execSync(`git commit -m "Initial commit for ${repoName}"`, { cwd: targetDir });
+  execSync(`git push -u origin main`, { cwd: targetDir });
+
+  console.log(`✅ Repo pushed to GitHub: ${GITHUB_ORG}/${repoName}`);
+} catch (err) {
+  console.error("❌ GitHub push failed:", err.message);
+}
+
 console.log(`Next: cd ${targetDir} && git init && git remote add origin git@github.com:${GITHUB_ORG}/${repoName}.git`);
 
 
