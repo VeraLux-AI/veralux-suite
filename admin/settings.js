@@ -293,15 +293,16 @@ async function provisionCompany() {
       body: JSON.stringify({ company: safeName })
     });
 
-    let result;
-    try {
-      result = await res.json();
-    } catch (e) {
-      const text = await res.text();
-      console.error("❌ Non-JSON response:", text);
-      showToast("❌ Server returned an error (not JSON)", false);
-      return;
-    }
+    let resultText = await res.text();  // ✅ Read response body only once
+let result;
+try {
+  result = JSON.parse(resultText);  // ✅ Attempt to parse it as JSON
+} catch (e) {
+  console.error("❌ Non-JSON response:", resultText);
+  showToast("❌ Server returned an error (not JSON)", false);
+  return;
+}
+
 
     toggleLoading(false);
 
