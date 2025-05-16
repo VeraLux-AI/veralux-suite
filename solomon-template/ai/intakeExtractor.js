@@ -36,19 +36,21 @@ async function intakeExtractor(conversation) {
     const parsedFields = JSON.parse(rawJSON);
 
     // ✅ Determine readiness to run doneChecker
-    const requiredKeys = [
-      "full_name",
-      "email",
-      "phone",
-      "location",
-      "goals",
-      "square_footage",
-      "must_have_features",
-      "preferred_materials",
-      "budget",
-      "start_date",
-      "final_notes"
-    ];
+    if (!config.requiredFields) {
+  throw new Error("❌ intakeExtractor: requiredFields config is missing.");
+}
+
+    const requiredKeys = config.requiredFields;
+
+
+    const acceptedShortAnswers = ["no", "none", "nope", "nothing else"];
+
+  const isValid = (value) => {
+  if (typeof value !== "string") return false;
+  const cleaned = value.trim().toLowerCase();
+  return cleaned !== "";
+};
+
 
     const acceptedShortAnswers = ["no", "none", "nope", "nothing else"];
 
