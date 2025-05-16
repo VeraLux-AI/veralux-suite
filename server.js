@@ -47,6 +47,34 @@ app.use('/admin', adminRoutes);
 // 🔐 Protect /admin with middleware
 app.use('/admin', requireLogin, express.static(path.join(__dirname, 'admin')));
 
+// === API: Save Config for a Client ===
+const fs = require('fs');
+
+app.post('/api/configs/:clientId', (req, res) => {
+  const clientId = req.params.clientId;
+  const config = req.body;
+
+  const configFolder = path.join(__dirname, 'configs');
+  const filePath = path.join(configFolder, `${clientId}-config.js`);
+
+  // Ensure configs folder exists
+  if (!fs.existsSync(configFolder)) {
+    fs.mkdirSync(configFolder);
+  }
+
+  const jsModule = `module.exports = ${JSON.stringify(config, null, 2)};\n`;
+
+  fs.writeFile(filePath, jsModule, (err) => {
+    if (err) {
+      console.error("❌ Failed to save config:", err);
+      return res.status(500).send("Error saving config.");
+    }
+    console.log(`✅ Saved config for ${clientId}`);
+    res.status(200).send("Config saved.");
+  });
+});
+
+
 // Start server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
