@@ -35,28 +35,11 @@ async function loadAdminConfig() {
     }
   }
 }
+
+await loadAdminConfig(); // 🔥 Load config before anything else boots
+
 const path = require('path');
 
-// Load adminConfig with fallback
-let adminConfig = {
-  enableDriveUpload: { enabled: true },
-  enablePdfGeneration: { enabled: true },
-  requirePhotoUpload: { enabled: true },
-  enableStripeCheckout: { enabled: false },
-  requiredFields: {
-    value: [
-      "full_name", "email", "phone", "location",
-      "goals", "square_footage", "must_have_features",
-      "preferred_materials", "budget", "start_date", "final_notes"
-    ]
-  }
-};
-try {
-  adminConfig = require('./admin/admin-config.json');
-  console.log("✅ Loaded admin-config.json");
-} catch (e) {
-  console.warn("⚠️ No admin-config.json found — using default settings.");
-}
 
 // Solomon core modules
 const { generateSummaryPDF } = require('./utils/pdfBuilder');
