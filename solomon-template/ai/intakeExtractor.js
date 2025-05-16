@@ -4,7 +4,7 @@ const fs = require("fs");
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-async function intakeExtractor(conversation) {
+async function intakeExtractor(conversation, config = {}) {
   let intakePrompt = "";
   try {
     intakePrompt = fs.readFileSync("./prompts/intake-extractor-prompt.txt", "utf8");
@@ -15,13 +15,30 @@ async function intakeExtractor(conversation) {
 
   const safeConversation = Array.isArray(conversation) ? conversation : [];
   const transcript = safeConversation
-  .filter(entry => entry.role === "user")
-  .map(entry => `User: ${entry.content}`)
-  .join("\n");
-
-
+    .filter(entry => entry.role === "user")
+    .map(entry => `User: ${entry.content}`)
+    .join("\n");
 
   const finalPrompt = intakePrompt.replace("{{message}}", transcript);
+
+  if (!config.requiredFields) {
+    throw new Error("❌ intakeExtractor: requiredFields config is missing.");
+  }
+
+  const requiredKeys = config.requiredFields;
+
+  const acceptedShortAnswers = ["no", "none", "nope", "nothing else", "n/a", "not sure", "i don't have any"];
+
+  const isValid = (value) => {
+    if (typeof value !== "string") return false;
+    const cleaned = value.trim().toLowerCase();
+    return cleaned !== "";
+  };
+
+  const normalizeNo = (val) => {
+    const cleaned = val?.toLowerCase().trim();
+    return acceptedShortAnswers.includes(cleaned);
+  };
 
   try {
     const completion = await openai.chat.completions.create({
@@ -35,49 +52,15 @@ async function intakeExtractor(conversation) {
     const rawJSON = content.slice(jsonStart, jsonEnd);
     const parsedFields = JSON.parse(rawJSON);
 
-    // ✅ Determine readiness to run doneChecker
-    if (!config.requiredFields) {
-  throw new Error("❌ intakeExtractor: requiredFields config is missing.");
-}
+    // Normalize final_notes
+    if (parsedFields.final_notes && normalizeNo(parsedFields.final_notes)) {
+      parsedFields.final_notes = "nothing else";
+    }
 
-    const requiredKeys = config.requiredFields;
-
-
-    const acceptedShortAnswers = ["no", "none", "nope", "nothing else"];
-
-  const isValid = (value) => {
-  if (typeof value !== "string") return false;
-  const cleaned = value.trim().toLowerCase();
-  return cleaned !== "";
-};
-
-
-    const acceptedShortAnswers = ["no", "none", "nope", "nothing else"];
-
-  const isValid = (value) => {
-  if (typeof value !== "string") return false;
-  const cleaned = value.trim().toLowerCase();
-  return cleaned !== "";
-};
-
-
-    
-    // ✅ Normalize short acceptable answers for final_notes
-   const normalizeNo = (val) => {
-  const cleaned = val?.toLowerCase().trim();
-  return ["no", "none", "nope", "nothing else", "n/a", "not sure", "i don't have any"].includes(cleaned);
-};
-
-// Normalize final_notes
-if (parsedFields.final_notes && normalizeNo(parsedFields.final_notes)) {
-  parsedFields.final_notes = "nothing else";
-}
-
-// Normalize preferred_materials
-if (parsedFields.preferred_materials && normalizeNo(parsedFields.preferred_materials)) {
-  parsedFields.preferred_materials = "Open to suggestions";
-}
-
+    // Normalize preferred_materials
+    if (parsedFields.preferred_materials && normalizeNo(parsedFields.preferred_materials)) {
+      parsedFields.preferred_materials = "Open to suggestions";
+    }
 
     const readyForCheck = requiredKeys.every(key => isValid(parsedFields[key]));
 
@@ -90,5 +73,6 @@ if (parsedFields.preferred_materials && normalizeNo(parsedFields.preferred_mater
     return { fields: {}, readyForCheck: false };
   }
 }
+
 
 module.exports = intakeExtractor;
