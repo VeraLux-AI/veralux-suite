@@ -28,6 +28,9 @@ const capId = id.charAt(0).toUpperCase() + id.slice(1);
 const repoName = `solomon-${id}`;
 const targetDir = path.join(OUTPUT_BASE, repoName);
 
+fs.mkdirSync(OUTPUT_BASE, { recursive: true }); // ✅ Ensures 'provisioned/' exists
+
+
 // === COPY TEMPLATE ===
 console.log(`📁 Creating ${targetDir} from template...`);
 fs.cpSync(TEMPLATE_DIR, targetDir, { recursive: true });
