@@ -261,14 +261,15 @@ if (syncStatus) {
 
 
 window.onload = async () => {
-  selectedCompany = "elevated-garage";
-  const option = new Option(selectedCompany, selectedCompany);
-  document.getElementById('company-select').add(option);
-  document.getElementById('company-select').value = selectedCompany;
-  toggleLoading(true);
-  await loadSettings();
-  toggleLoading(false);
+  await loadCompanyList();  // dynamically populate the dropdown
+  if (document.getElementById('company-select').options.length > 0) {
+    selectedCompany = document.getElementById('company-select').value;
+    toggleLoading(true);
+    await loadSettings();
+    toggleLoading(false);
+  }
 };
+
 
 
 
