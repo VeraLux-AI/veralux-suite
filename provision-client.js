@@ -101,6 +101,16 @@ execSync(`git commit -m "Initial commit for ${repoName}"`, { cwd: targetDir });
   console.error("❌ GitHub push failed:", err.message);
 }
 
+// === WRITE .env TO DEPLOYMENT ===
+const envPath = path.join(targetDir, '.env');
+fs.writeFileSync(envPath, [
+  `DEPLOYMENT_ID=${id}`,
+  `CONFIG_API_KEY=${apiKey}`,
+  `CONFIG_ENDPOINT=http://localhost:3000/api/configs`
+].join('\n'));
+console.log(`📦 .env written to ${envPath}`);
+
+
 console.log(`Next: cd ${targetDir} && git init && git remote add origin git@github.com:${GITHUB_ORG}/${repoName}.git`);
 
 
