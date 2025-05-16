@@ -47,7 +47,7 @@ app.use('/admin', adminRoutes);
 // 🔐 Protect /admin with middleware
 app.use('/admin', requireLogin, express.static(path.join(__dirname, 'admin')));
 
-// === API: Save Config for a Client ===
+// === API: Save Config as .json ===
 const fs = require('fs');
 
 app.post('/api/configs/:clientId', (req, res) => {
@@ -55,22 +55,44 @@ app.post('/api/configs/:clientId', (req, res) => {
   const config = req.body;
 
   const configFolder = path.join(__dirname, 'configs');
-  const filePath = path.join(configFolder, `${clientId}-config.js`);
+  const filePath = path.join(configFolder, `${clientId}.json`);
 
-  // Ensure configs folder exists
   if (!fs.existsSync(configFolder)) {
     fs.mkdirSync(configFolder);
   }
 
-  const jsModule = `module.exports = ${JSON.stringify(config, null, 2)};\n`;
-
-  fs.writeFile(filePath, jsModule, (err) => {
+  fs.writeFile(filePath, JSON.stringify(config, null, 2), (err) => {
     if (err) {
       console.error("❌ Failed to save config:", err);
       return res.status(500).send("Error saving config.");
     }
     console.log(`✅ Saved config for ${clientId}`);
     res.status(200).send("Config saved.");
+  });
+});
+
+// === API: Read Config as .json ===
+app.get('/api/configs/:clientId', requireLogin, (req, res) => {
+  const clientId = req.params.clientId;
+  const filePath = path.join(__dirname, 'configs', `${clientId}.json`);
+
+  if (!fs.existsSync(filePath)) {
+    return res.status(404).json({ error: "Config not found." });
+  }
+
+  fs.readFile(filePath, 'utf8', (err, data) => {
+    if (err) {
+      console.error("❌ Error reading config:", err);
+      return res.status(500).json({ error: "Failed to read config." });
+    }
+
+    try {
+      const config = JSON.parse(data);
+      res.json(config);
+    } catch (parseErr) {
+      console.error("❌ Invalid JSON:", parseErr);
+      return res.status(500).json({ error: "Invalid JSON format." });
+    }
   });
 });
 
