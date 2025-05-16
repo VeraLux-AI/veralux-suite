@@ -36,4 +36,25 @@ function logClientActivity(companyId, type) {
   if (type === 'summary') usageStats[companyId].summariesGenerated++;
 }
 
+const { exec } = require('child_process');
+
+router.post('/provision-company', (req, res) => {
+  const company = req.body.company?.trim().toLowerCase();
+  if (!company) return res.status(400).json({ error: "Missing company name" });
+
+  const command = `node provision-client.js --name ${company}`;
+
+  console.log(`🚀 Starting provisioning for ${company}...`);
+  exec(command, { cwd: path.join(__dirname, '..') }, (err, stdout, stderr) => {
+    if (err) {
+      console.error(`❌ Provisioning failed: ${stderr}`);
+      return res.status(500).json({ success: false, error: stderr });
+    }
+
+    console.log(`✅ Provisioning complete:\n${stdout}`);
+    res.status(200).json({ success: true, message: `Provisioned ${company}` });
+  });
+});
+
+
 module.exports = { router, logClientActivity };
