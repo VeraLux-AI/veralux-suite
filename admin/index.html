@@ -148,9 +148,20 @@
 </main>
 
 
-  <script src="settings.js"></script>
+  
+<div id="configModal" style="display:none; position:fixed; top:10%; left:10%; width:80%; height:80%; background:white; border:1px solid #ccc; padding:1rem; overflow:auto; z-index:1000; box-shadow: 0 0 20px rgba(0,0,0,0.2);">
+  <h2 class="text-xl font-bold mb-2">🔍 Edit Config</h2>
+  <textarea id="configViewer" style="white-space: pre-wrap; background:#f6f6f6; padding:1rem; border:1px solid #ddd; width:100%; height:70%; font-family: monospace;"></textarea>
+  <div class="mt-4 flex gap-3">
+    <button onclick="saveConfig()" style="background:#28a745; color:white; padding:0.5rem 1rem; border:none;">💾 Save</button>
+    <button onclick="closeConfig()" style="background:#BFA15A; color:white; padding:0.5rem 1rem; border:none;">Close</button>
+  </div>
+</div>
+
+<script src="settings.js"></script>
 </body>
 </html>
+
 
 
 
@@ -189,35 +200,45 @@ async function loadDeployments() {
   }
 }
 
+let activeConfigId = null;
+
 async function viewConfig(name) {
   try {
     const res = await fetch(`/api/configs/${name}`);
     if (!res.ok) throw new Error("Config not found");
-
     const data = await res.json();
-    const modal = document.createElement('div');
-    modal.style.position = 'fixed';
-    modal.style.top = '10%';
-    modal.style.left = '10%';
-    modal.style.width = '80%';
-    modal.style.height = '80%';
-    modal.style.background = 'white';
-    modal.style.border = '1px solid #ccc';
-    modal.style.padding = '1rem';
-    modal.style.overflow = 'auto';
-    modal.style.zIndex = '1000';
-    modal.style.boxShadow = '0 0 20px rgba(0,0,0,0.2)';
-    modal.innerHTML = `
-      <h2 class="text-xl font-bold mb-2">🔍 Config for ${name}</h2>
-      <pre style="white-space: pre-wrap; background:#f6f6f6; padding:1rem; border:1px solid #ddd; max-height:70%; overflow:auto;">${JSON.stringify(data, null, 2)}</pre>
-      <button onclick="this.parentElement.remove()" style="margin-top:1rem; background:#BFA15A; color:white; padding: 0.5rem 1rem; border:none;">Close</button>
-    `;
-    document.body.appendChild(modal);
+
+    activeConfigId = name;
+    document.getElementById('configViewer').value = JSON.stringify(data, null, 2);
+    document.getElementById('configModal').style.display = 'block';
   } catch (err) {
     alert("⚠️ Failed to load config.");
   }
 }
 
+function closeConfig() {
+  document.getElementById('configModal').style.display = 'none';
+}
+
+async function saveConfig() {
+  try {
+    const updated = JSON.parse(document.getElementById('configViewer').value);
+    const res = await fetch(`/api/configs/${activeConfigId}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updated)
+    });
+
+    if (res.ok) {
+      alert("✅ Config saved!");
+      closeConfig();
+    } else {
+      alert("❌ Failed to save config.");
+    }
+  } catch (err) {
+    alert("❌ Invalid JSON format.");
+  }
+}
 
 async function redeploy(name) {
   const confirmed = confirm(`Redeploy Solomon for ${name}?`);
@@ -233,3 +254,5 @@ async function redeploy(name) {
 
 window.onload = loadDeployments;
 </script>
+
+</html>
