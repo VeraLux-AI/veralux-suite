@@ -115,6 +115,56 @@ const envVars = [
 fs.writeFileSync(envPath, envVars.join('\n'));
 console.log(`📦 .env written to ${envPath}`);
 
+async function createRenderService(company, repoUrl, envVars) {
+  const RENDER_API_KEY = process.env.RENDER_API_KEY;
+  if (!RENDER_API_KEY) {
+    throw new Error("❌ Missing RENDER_API_KEY in .env");
+  }
+
+  const payload = {
+    name: `solomon-${company}`,
+    serviceDetails: {
+      type: "web_service",
+      name: `solomon-${company}`,
+      repo: {
+        url: repoUrl,
+        branch: "main",
+        autoDeploy: true
+      },
+      env: "node",
+      buildCommand: "npm install",
+      startCommand: "node server.js",
+      rootDir: ".",
+      region: "oregon",
+      plan: "starter",
+      envVars: Object.entries(envVars).map(([key, value]) => ({
+        key,
+        value,
+        isSecret: true
+      }))
+    }
+  };
+
+  const res = await fetch("https://api.render.com/v1/services", {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${RENDER_API_KEY}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(payload)
+  });
+
+  const result = await res.json();
+
+  if (!res.ok) {
+    console.error("❌ Render service creation failed:", result);
+    throw new Error(result.message || "Unknown Render error");
+  }
+
+  console.log(`✅ Render service created: ${result.service.url}`);
+  return { serviceId: result.service.id, url: result.service.url };
+}
+
 
 
 console.log(`Next: cd ${targetDir} && git init && git remote add origin git@github.com:${GITHUB_ORG}/${repoName}.git`);
