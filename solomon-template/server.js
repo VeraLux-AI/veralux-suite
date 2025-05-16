@@ -238,31 +238,18 @@ userConversations[sessionId] = userConversations[sessionId].map(m => ({
   };
 
   monitorResult = await MonitorAI({
-    conversation: userConversations[sessionId],
-    intakeData: userIntakeOverrides[sessionId],
-    sessionMemory,
-    config: {
-      photoField: "photo",
-      photoRequired: true,
-      generatePdfWithoutPhoto: true,
-      completeMessage: "✅ All set! Ready to finalize your project summary.",
-      photoPrompt: "📸 Upload a quick photo or tap skip to continue.",
-      requiredFields: [
-        "full_name",
-        "email",
-        "phone",
-        "location",
-        "goals",
-        "square_footage",
-        "must_have_features",
-        "preferred_materials",
-        "budget",
-        "start_date",
-        "final_notes"
-      ]
-    }
-  });
-
+  conversation: userConversations[sessionId],
+  intakeData: userIntakeOverrides[sessionId],
+  sessionMemory,
+  config: {
+    photoField: "photo",
+    photoRequired: adminConfig.submission?.photoRequired?.enabled ?? true,
+    generatePdfWithoutPhoto: adminConfig.submission?.generatePdfWithoutPhoto?.enabled ?? true,
+    completeMessage: adminConfig.ui?.completeMessage?.value || "✅ All set! Ready to finalize your project summary.",
+    photoPrompt: adminConfig.ui?.photoPrompt?.value || "📸 Upload a quick photo or tap skip to continue.",
+    requiredFields: adminConfig.intake?.requiredFields?.value || []
+  }
+});
 
 // ✅ Normalize GPT reply if it returned { message: "..." }
 if (typeof assistantReply === 'object' && assistantReply?.message) {
