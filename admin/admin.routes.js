@@ -152,7 +152,7 @@ router.post('/create-company', (req, res) => {
   "type": "textarea",
   "label": "Done Checker Prompt",
   "value": "You are a data completeness checker AI. Your task is to determine whether the extracted intake data includes meaningful, complete values for all required fields.\n\nRequired fields:\n{{required}}\n\nRules for completeness:\n- A field is incomplete if it is missing or blank.\n- Short, dismissive responses such as \"no\", \"none\", \"nope\", \"n/a\", or \"nothing else\" are considered valid and complete for all fields.\n- These checks are case-insensitive.\n- Any other non-empty value is also considered complete.\n\nIf all required fields are complete, respond only with:\n✅ All required fields are complete.\n\nIf any required fields are missing or incomplete, respond only with:\n❌ Missing or incomplete fields.\nMissing: [list of keys for the incomplete fields]\n\nDo not include explanations, greetings, or extra commentary.\n\nHere is the extracted intake data:\n{{fields}}"
-}
+  }
 
 
   try {
