@@ -114,7 +114,7 @@ const repoUrl = `https://github.com/${GITHUB_ORG}/${repoName}`;
 
 console.log("🌐 Creating Render Web Service...");
 try {
-  const { serviceId, url } = await createRenderService(id, repoUrl, envVarsObject);
+  const { serviceId, url } = await createRenderService(id, repoUrl, envVarsObject, process.env.RENDER_OWNER_ID);
 
   const renderInfoPath = path.join(targetDir, 'render.json');
   fs.writeFileSync(renderInfoPath, JSON.stringify({ serviceId, url }, null, 2));
@@ -173,7 +173,8 @@ const envVars = [
 fs.writeFileSync(envPath, envVars.join('\n'));
 console.log(`📦 .env written to ${envPath}`);
 
-async function createRenderService(company, repoUrl, envVars) {
+async function createRenderService(company, repoUrl, envVars, ownerId)
+ {
   const RENDER_API_KEY = process.env.RENDER_API_KEY;
   if (!RENDER_API_KEY) {
     throw new Error("❌ Missing RENDER_API_KEY in .env");
