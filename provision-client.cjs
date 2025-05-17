@@ -181,6 +181,7 @@ async function createRenderService(company, repoUrl, envVars, ownerId)
   }
 
   const payload = {
+    ownerId: ownerId,
     name: `solomon-${company}`,
     serviceDetails: {
       type: "web_service",
