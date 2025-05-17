@@ -14,7 +14,10 @@ async function MonitorAI({ conversation = [], intakeData = {}, sessionMemory = {
     generatePdfWithoutPhoto = false,
   } = config;
 
-  const done = await doneChecker(intakeData, requiredFields);
+  const done = await doneChecker(intakeData, requiredFields, {
+  doneCheckerPrompt: config.doneCheckerPrompt
+});
+
   const missingFields = done?.missingFields || [];
 
   const photoValue = intakeData[photoField];
