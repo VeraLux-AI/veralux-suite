@@ -74,10 +74,10 @@ walk(targetDir);
 
 // === GIT + GITHUB LOGIC (OPTIONAL) ===
 console.log(`🚀 Initialized: ${repoName}`);
+
 // === AUTOMATED GITHUB PUSH ===
+console.log(`🔧 Attempting to create GitHub repo for: ${repoName}`);
 try {
-  
-  // === 🧠 Auto-create the GitHub repo before pushing
   await octokit.repos.createInOrg({
     org: GITHUB_ORG,
     name: repoName,
@@ -91,15 +91,18 @@ try {
   execSync(`git branch -M main`, { cwd: targetDir });
   execSync(`git remote add origin ${remoteUrl}`, { cwd: targetDir });
   execSync(`git add .`, { cwd: targetDir });
-  
-execSync(`git config user.name "VeraLux AutoBot"`, { cwd: targetDir });
-execSync(`git config user.email "nick@veralux.ai"`, { cwd: targetDir });
-execSync(`git commit -m "Initial commit for ${repoName}"`, { cwd: targetDir });
+  execSync(`git config user.name "VeraLux AutoBot"`, { cwd: targetDir });
+  execSync(`git config user.email "nick@veralux.ai"`, { cwd: targetDir });
+  execSync(`git commit -m "Initial commit for ${repoName}"`, { cwd: targetDir });
   execSync(`git push -u origin main`, { cwd: targetDir });
 
   console.log(`✅ Repo pushed to GitHub: ${GITHUB_ORG}/${repoName}`);
+} catch (err) {
+  console.error("❌ GitHub push failed:", err.message);
+}
 
-  const envVarsObject = {
+// === RENDER DEPLOYMENT ===
+const envVarsObject = {
   DEPLOYMENT_ID: id,
   CONFIG_API_KEY: apiKey,
   CONFIG_ENDPOINT: 'https://portal.veralux.ai/api/configs',
@@ -116,6 +119,27 @@ try {
   const renderInfoPath = path.join(targetDir, 'render.json');
   fs.writeFileSync(renderInfoPath, JSON.stringify({ serviceId, url }, null, 2));
   console.log(`🌍 Render deployed: ${url}`);
+
+  // === Update deployments.json ===
+  const deploymentsPath = path.join(__dirname, 'deployments.json');
+  let deployments = {};
+
+  if (fs.existsSync(deploymentsPath)) {
+    deployments = JSON.parse(fs.readFileSync(deploymentsPath, 'utf8'));
+  }
+
+  deployments[`solomon-${id}`] = {
+    renderUrl: url,
+    serviceId: serviceId,
+    githubRepo: `https://github.com/${GITHUB_ORG}/${repoName}`
+  };
+
+  fs.writeFileSync(deploymentsPath, JSON.stringify(deployments, null, 2));
+  console.log(`🗂 Saved to deployments.json`);
+} catch (err) {
+  console.error("❌ Render deployment failed:", err.message);
+}
+
 
 // === Update deployments.json ===
 const deploymentsPath = path.join(__dirname, 'deployments.json');
