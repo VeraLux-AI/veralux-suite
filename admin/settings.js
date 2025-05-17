@@ -143,8 +143,6 @@ function renderLists(data, container) {
       list.id = `${key}-list`;
       list.className = 'space-y-2';
 
-      const sourceMap = configData.sourceMap || {}; // <— Used to label AI/manual origin
-
       (setting.value || []).forEach(item => {
         const li = document.createElement('li');
         li.className = 'flex gap-2 items-center';
@@ -160,7 +158,8 @@ function renderLists(data, container) {
         delBtn.className = 'text-red-600 text-sm';
         delBtn.onclick = () => li.remove();
 
-                li.appendChild(delBtn);
+        li.appendChild(input);     // ✅ FIXED: Append the input
+        li.appendChild(delBtn);    // ✅ Then append the delete button
         list.appendChild(li);
       });
 
@@ -176,7 +175,14 @@ function renderLists(data, container) {
         input.type = 'text';
         input.className = 'w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none';
 
-                li.appendChild(delBtn);
+        const delBtn = document.createElement('button');
+        delBtn.innerText = '❌';
+        delBtn.type = 'button';
+        delBtn.className = 'text-red-600 text-sm';
+        delBtn.onclick = () => li.remove();
+
+        li.appendChild(input);    // ✅ FIXED
+        li.appendChild(delBtn);
         list.appendChild(li);
       };
 
