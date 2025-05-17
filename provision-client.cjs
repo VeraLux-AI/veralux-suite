@@ -1,5 +1,6 @@
 // provision-client.js
 // Usage: node provision-client.js --name brightbuild --color "#1A73E8" --accent "#174EA6"
+(async () => {
 
 const fs = require('fs');
 const path = require('path');
@@ -325,3 +326,5 @@ fs.writeFileSync(configPath, JSON.stringify(
     }
   }
 }, null, 2));
+  })();
+
