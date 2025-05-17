@@ -159,16 +159,6 @@ fs.writeFileSync(deploymentsPath, JSON.stringify(deployments, null, 2));
 console.log(`🗂 Saved to deployments.json`);
 
 
-  
-} catch (err) {
-  console.error("❌ Render deployment failed:", err.message);
-}
-
-  
-} catch (err) {
-  console.error("❌ GitHub push failed:", err.message);
-}
-
 // === WRITE .env TO DEPLOYMENT ===
 const envPath = path.join(targetDir, '.env');
 const envVars = [
