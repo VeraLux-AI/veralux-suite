@@ -195,11 +195,18 @@ userConversations[sessionId] = userConversations[sessionId].map(m => ({
 
 
   // GPT responds based on intake state
-  let assistantReply = await chatResponder(
-    userConversations[sessionId],
-    [],
-    { intakeData: userIntakeOverrides[sessionId] }
-  );
+ let assistantReply = await chatResponder(
+  userConversations[sessionId],
+  [],
+  {
+    intakeData: userIntakeOverrides[sessionId],
+    photoUploaded: userUploadedPhotos[sessionId]?.length > 0,
+    photoRequested: userFlags[sessionId]?.photoRequested || false,
+    doneCheckerComplete: done?.isComplete
+  },
+  adminConfig // ✅ This enables the remote prompt
+);
+
   if (typeof assistantReply === 'object' && assistantReply?.message) {
   assistantReply = assistantReply.message;
 } else if (typeof assistantReply !== 'string') {
