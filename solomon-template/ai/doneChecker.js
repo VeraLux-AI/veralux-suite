@@ -1,35 +1,40 @@
+// doneChecker.js
+
 require("dotenv").config();
 const OpenAI = require("openai");
 const fs = require("fs");
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-async function doneChecker(fields) {
-  // ✅ Shortcut: accept short, clear "no" or "n/a" answers
+async function doneChecker(fields, requiredFields = [], config = {}) {
+  // ✅ Skip if final_notes is clearly dismissive
   const normalized = fields.final_notes?.toLowerCase().trim();
-  if (normalized === "no" || normalized === "none" || normalized === "n/a" || normalized === "nothing else") {
-    console.log("[doneChecker] Bypassing AI: 'final_notes' is short and acceptable.");
+  const accepted = ["no", "none", "n/a", "nothing else", "not sure"];
+  if (accepted.includes(normalized)) {
+    console.log("[doneChecker] Bypassing GPT: acceptable 'final_notes'");
     return { isComplete: true, missingFields: [] };
   }
 
-  let donePrompt = "";
-  try {
-    donePrompt = fs.readFileSync("./prompts/intake-done-checker.txt", "utf8");
-  } catch (err) {
-    console.warn("Prompt file missing or unreadable (doneChecker):", err.message);
+  // ✅ Load remote prompt if available
+  let donePrompt = config.doneCheckerPrompt;
+  if (!donePrompt) {
+    try {
+      donePrompt = fs.readFileSync("./prompts/intake-done-checker.txt", "utf8");
+    } catch (err) {
+      console.warn("⚠️ No remote or local doneChecker prompt found:", err.message);
+      donePrompt = "Determine if all required fields are present. Return ✅ if complete, otherwise list missing.";
+    }
   }
 
   try {
     const promptWithFields = donePrompt.replace("{{fields}}", JSON.stringify(fields, null, 2));
-    console.log("[doneChecker] Checking fields:", fields);
-
     const completion = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo",
+      model: "gpt-4-turbo",
       messages: [{ role: "system", content: promptWithFields }]
     });
 
     const content = completion.choices[0].message.content;
-    console.log("🧠 Raw doneChecker AI response:", content);
+    console.log("🧠 GPT doneChecker raw:", content);
 
     const isDone = content.includes("✅");
     const missingMatches = content.match(/Missing:\s*\[(.*?)\]/i);
@@ -38,17 +43,11 @@ async function doneChecker(fields) {
       : [];
 
     return { isComplete: isDone, missingFields: missing };
-  } catch (error) {
-    console.error("doneChecker AI error:", error.message);
+  } catch (err) {
+    console.error("❌ GPT error in doneChecker:", err.message);
     // 🧠 Hybrid fallback
-    
-    const requiredFields = ["full_name", "email", "phone", "location", "goals", "square_footage", "must_have_features", "preferred_materials", "budget", "start_date", "final_notes"];
-    const missing = requiredFields.filter(field => !fields[field] || fields[field].trim().length === 0);
-    console.warn("⚠️ Using hybrid fallback due to AI failure. Missing fields:", missing);
-    return {
-      isComplete: missing.length === 0,
-      missingFields: missing
-    };
+    const missing = requiredFields.filter(f => !fields[f] || fields[f].trim() === "");
+    return { isComplete: missing.length === 0, missingFields: missing };
   }
 }
 
