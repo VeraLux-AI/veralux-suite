@@ -170,7 +170,7 @@ async function createRenderService(company, repoUrl, envVars, ownerId)
  const payload = {
   name: `solomon-${company}`,
   ownerId,
-  serviceType: "web_service",
+  type: "web_service",
   runtime: "node",
   buildCommand: "npm install",
   startCommand: "node server.js",
