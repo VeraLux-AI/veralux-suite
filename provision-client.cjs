@@ -181,7 +181,6 @@ async function createRenderService(company, repoUrl, envVars, ownerId)
   startCommand: "node server.js",
   rootDir: ".",
   region: "oregon",
-  plan: "starter",
   envVars: Object.entries(envVars)
   .filter(([_, value]) => value !== undefined)
   .map(([key, value]) => ({
