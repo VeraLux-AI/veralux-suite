@@ -171,19 +171,22 @@ async function createRenderService(company, repoUrl, envVars, ownerId)
   name: `solomon-${company}`,
   ownerId,
   type: "web_service",
-  runtime: "node",
-  buildCommand: "npm install",
-  startCommand: "node server.js",
-  rootDir: ".",
-  region: "oregon",
-  envVars: Object.entries(envVars)
-    .filter(([_, value]) => value !== undefined)
-    .map(([key, value]) => ({
-      key,
-      value,
-      isSecret: true
-    }))
+  serviceDetails: {
+    runtime: "node",
+    buildCommand: "npm install",
+    startCommand: "node server.js",
+    rootDir: ".",
+    region: "oregon",
+    envVars: Object.entries(envVars)
+      .filter(([_, value]) => value !== undefined)
+      .map(([key, value]) => ({
+        key,
+        value,
+        isSecret: true
+      }))
+  }
 };
+
 
 console.log("🧪 Render Payload Preview:");
 console.log(JSON.stringify(payload, null, 2));
