@@ -198,7 +198,6 @@ router.post('/provision-company', (req, res) => {
   }
 
   res.json({ success: true, output: stdout.trim() });
-});
 
     // ✅ Read deployment info from deployments.json
     const deploymentsPath = path.join(__dirname, '..', 'deployments.json');
@@ -218,7 +217,7 @@ router.post('/provision-company', (req, res) => {
       githubRepo: deployed.githubRepo || null,
       serviceId: deployed.serviceId || null
     });
-  });
+
 });
 
 // 🧠 Generate AI Prompt (chatResponderPrompt or intakeExtractorPrompt)
