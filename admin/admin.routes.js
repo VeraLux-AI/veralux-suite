@@ -190,35 +190,35 @@ router.post('/provision-company', (req, res) => {
 
 
   const command = `node provision-client.cjs --name ${company}`;
- exec(command, (error, stdout, stderr) => {
-  console.log("STDOUT:", stdout);
-  console.log("STDERR:", stderr);
+  exec(command, (error, stdout, stderr) => {
+    console.log("STDOUT:", stdout);
+    console.log("STDERR:", stderr);
 
-  if (error) {
-    console.error("Exec error:", error.message);
-    return res.status(500).json({ error: error.message });
-  }
+    if (error) {
+      console.error("Exec error:", error.message);
+      return res.status(500).json({ error: error.message });
+    }
 
   // ✅ Read deployment info after exec completes
-  const deploymentsPath = path.join(__dirname, '..', 'deployments.json');
-  let deployments = {};
-  if (fs.existsSync(deploymentsPath)) {
-    deployments = JSON.parse(fs.readFileSync(deploymentsPath, 'utf8'));
-  }
+    const deploymentsPath = path.join(__dirname, '..', 'deployments.json');
+    let deployments = {};
+    if (fs.existsSync(deploymentsPath)) {
+      deployments = JSON.parse(fs.readFileSync(deploymentsPath, 'utf8'));
+    }
 
-  const key = `solomon-${company}`;
-  const deployed = deployments[key] || {};
+    const key = `solomon-${company}`;
+    const deployed = deployments[key] || {};
 
-  res.json({
-    success: true,
-    company,
-    output: stdout.trim(),
-    renderUrl: deployed.renderUrl || null,
-    githubRepo: deployed.githubRepo || null,
-    serviceId: deployed.serviceId || null
+    res.json({
+      success: true,
+      company,
+      output: stdout.trim(),
+      renderUrl: deployed.renderUrl || null,
+      githubRepo: deployed.githubRepo || null,
+      serviceId: deployed.serviceId || null
+    });
   });
 });
-
 
 // 🧠 Generate AI Prompt (chatResponderPrompt or intakeExtractorPrompt)
 const { generatePrompts } = require('./ai/promptGenerator');
