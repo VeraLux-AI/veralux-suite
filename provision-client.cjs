@@ -167,30 +167,28 @@ async function createRenderService(company, repoUrl, envVars, ownerId)
     throw new Error("❌ Missing RENDER_API_KEY in .env");
   }
 
-  const payload = {
-    ownerId: ownerId,
-    name: `solomon-${company}`,
-    serviceDetails: {
-      type: "web_service",
-      name: `solomon-${company}`,
-      repo: {
-        url: repoUrl,
-        branch: "main",
-        autoDeploy: true
-      },
-      env: "node",
-      buildCommand: "npm install",
-      startCommand: "node server.js",
-      rootDir: ".",
-      region: "oregon",
-      plan: "starter",
-      envVars: Object.entries(envVars).map(([key, value]) => ({
-        key,
-        value,
-        isSecret: true
-      }))
-    }
-  };
+ const payload = {
+  name: `solomon-${company}`,
+  ownerId,
+  serviceType: "web_service", // ✅ this is what Render expects
+  repo: {
+    url: repoUrl,
+    branch: "main",
+    autoDeploy: true
+  },
+  env: "node",
+  buildCommand: "npm install",
+  startCommand: "node server.js",
+  rootDir: ".",
+  region: "oregon",
+  plan: "starter",
+  envVars: Object.entries(envVars).map(([key, value]) => ({
+    key,
+    value,
+    isSecret: true
+  }))
+};
+
 
   const res = await fetch("https://api.render.com/v1/services", {
     method: "POST",
