@@ -188,7 +188,7 @@ router.post('/provision-company', (req, res) => {
   fs.mkdirSync(deploymentDir, { recursive: true });
   fs.writeFileSync(envPath, envContent);
 
-  const command = `node provision-client.js --name ${company}`;
+
   const command = `node provision-client.cjs --name ${company}`;
   exec(command, (error, stdout, stderr) => {
     if (error) return res.status(500).json({ error: error.message });
