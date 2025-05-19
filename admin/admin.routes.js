@@ -191,7 +191,15 @@ router.post('/provision-company', (req, res) => {
 
   const command = `node provision-client.cjs --name ${company}`;
   exec(command, (error, stdout, stderr) => {
-    if (error) return res.status(500).json({ error: error.message });
+    console.log("STDOUT:", stdout);
+    console.log("STDERR:", stderr);
+    if (error) {
+      console.error("Exec error:", error.message);
+      return res.status(500).json({ error: error.message });
+    }
+    res.json({ success: true, log: stdout });
+  });
+
 
     // ✅ Read deployment info from deployments.json
     const deploymentsPath = path.join(__dirname, '..', 'deployments.json');
