@@ -87,7 +87,7 @@ router.post('/:company/save-settings', (req, res) => {
   const configDir = path.join(__dirname, '..', 'configs');
   const clientConfigPath = path.join(configDir, `solomon-${req.params.company}.json`);
   const clientKeyPath = path.join(configDir, `solomon-${req.params.company}.key`);
-  
+
   fs.mkdirSync(configDir, { recursive: true });
   fs.writeFileSync(clientConfigPath, JSON.stringify(adminConfig, null, 2));
 
@@ -188,16 +188,10 @@ router.post('/provision-company', (req, res) => {
   fs.mkdirSync(deploymentDir, { recursive: true });
   fs.writeFileSync(envPath, envContent);
 
+  const command = `node provision-client.js --name ${company}`;
+  const command = `node provision-client.cjs --name ${company}`;
   exec(command, (error, stdout, stderr) => {
-  console.log("🛠 Provisioning command output:", stdout);
-  console.error("⚠️ stderr:", stderr);
-
-  if (error) {
-    console.error("❌ Exec error:", error);
-    return res.status(500).json({ error: error.message });
-  }
-
-  res.json({ success: true, output: stdout.trim() });
+    if (error) return res.status(500).json({ error: error.message });
 
     // ✅ Read deployment info from deployments.json
     const deploymentsPath = path.join(__dirname, '..', 'deployments.json');
@@ -217,7 +211,7 @@ router.post('/provision-company', (req, res) => {
       githubRepo: deployed.githubRepo || null,
       serviceId: deployed.serviceId || null
     });
-
+  });
 });
 
 // 🧠 Generate AI Prompt (chatResponderPrompt or intakeExtractorPrompt)
@@ -233,7 +227,7 @@ router.post('/generate-prompt', async (req, res) => {
 
   try {
     const prompts = await generatePrompts(purpose, business, tone);
-   
+
     const settings = {
   chatResponderPrompt: {
     type: "textarea",
@@ -268,7 +262,7 @@ prompts.requiredFields.forEach(field => {
 if (!fs.existsSync(dir)) {
   fs.mkdirSync(dir, { recursive: true });
 }
-    
+
     fs.writeFileSync(filePath, JSON.stringify(settings, null, 2));
 
 
