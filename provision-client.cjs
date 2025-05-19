@@ -191,6 +191,9 @@ async function createRenderService(company, repoUrl, envVars, ownerId)
   }))
 };
 
+   console.log("🧪 Render Payload Preview:");
+   console.log(JSON.stringify(payload, null, 2));
+
 
   const res = await fetch("https://api.render.com/v1/services", {
     method: "POST",
