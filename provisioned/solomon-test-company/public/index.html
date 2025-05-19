@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Solomon Modular</title>
+  <link rel="stylesheet" href="/style.css" />
+  <script src="https://js.stripe.com/v3/"></script> <!-- ✅ Stripe.js -->
+</head>
+<body>
+  <div id="app">
+    <div id="main-centered-container">
+      <div id="header"></div>
+
+      <!-- Main Chat Section -->
+      <div id="chat-section">
+        <div id="chatbox"></div>
+        <div id="typing"></div>
+        <div id="summary"></div>
+        <div id="uploadbox"></div>
+      </div>
+
+      <div id="checkout"></div> <!-- ✅ Checkout button container -->
+
+      <div id="footer"></div>
+    </div>
+  </div>
+
+  <!-- Single Component Loader + App Init -->
+  <script type="module">
+   async function loadComponent(id, file) {
+  const container = document.getElementById(id);
+  try {
+    const response = await fetch(`/components/${file}`);
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const html = await response.text();
+    container.innerHTML = html;
+    console.log(`✅ Loaded ${file}`);
+  } catch (err) {
+    console.error(`❌ Failed to load ${file}:`, err.message);
+  }
+}
+
+
+    await Promise.all([
+      loadComponent("header", "header.html"),
+      loadComponent("chatbox", "chatbox.html"),
+      loadComponent("uploadbox", "uploadbox.html"),
+      loadComponent("typing", "typing.html"),
+      loadComponent("summary", "summary.html"),
+      loadComponent("footer", "footer.html"),
+      loadComponent("checkout", "checkout.html") // ✅ Added Stripe button
+    ]);
+
+    import("/js/app.js");
+    import("/js/checkout.js"); // ✅ Added Stripe button logic
+  </script>
+</body>
+</html>
+
