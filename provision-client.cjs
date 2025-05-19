@@ -176,7 +176,7 @@ async function createRenderService(company, repoUrl, envVars, ownerId)
     branch: "main",
     autoDeploy: true
   },
-  env: "node",
+  runtime: "node",  // ✅ this matches Render's API schema
   buildCommand: "npm install",
   startCommand: "node server.js",
   rootDir: ".",
