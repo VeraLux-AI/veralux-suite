@@ -144,24 +144,6 @@ try {
 }
 
 
-// === Update deployments.json ===
-const deploymentsPath = path.join(__dirname, 'deployments.json');
-let deployments = {};
-
-if (fs.existsSync(deploymentsPath)) {
-  deployments = JSON.parse(fs.readFileSync(deploymentsPath, 'utf8'));
-}
-
-deployments[`solomon-${id}`] = {
-  renderUrl: url,
-  serviceId: serviceId,
-  githubRepo: `https://github.com/${GITHUB_ORG}/${repoName}`
-};
-
-fs.writeFileSync(deploymentsPath, JSON.stringify(deployments, null, 2));
-console.log(`🗂 Saved to deployments.json`);
-
-
 // === WRITE .env TO DEPLOYMENT ===
 const envPath = path.join(targetDir, '.env');
 const envVars = [
