@@ -182,7 +182,9 @@ async function createRenderService(company, repoUrl, envVars, ownerId)
   rootDir: ".",
   region: "oregon",
   plan: "starter",
-  envVars: Object.entries(envVars).map(([key, value]) => ({
+  envVars: Object.entries(envVars)
+  .filter(([_, value]) => value !== undefined)
+  .map(([key, value]) => ({
     key,
     value,
     isSecret: true
