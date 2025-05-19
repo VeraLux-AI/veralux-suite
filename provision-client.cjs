@@ -184,7 +184,7 @@ async function createRenderService(company, repoUrl, envVars, ownerId)
   }
 
   const payload = {
-    ownerId: "tea-cvisfjadbo4c739bq74g",
+    ownerId: ownerId,
     name: `solomon-${company}`,
     serviceDetails: {
       type: "web_service",
@@ -225,10 +225,7 @@ async function createRenderService(company, repoUrl, envVars, ownerId)
   }
 
   console.log(`✅ Render service created: ${result.service.url}`);
-  const serviceId = result.service?.id;
-  const url = result.service?.url || result.url;
-  return { serviceId, url };
-
+  return { serviceId: result.service.id, url: result.service.url };
 }
 
 
