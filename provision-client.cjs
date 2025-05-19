@@ -172,6 +172,11 @@ async function createRenderService(company, repoUrl, envVars, ownerId)
   ownerId,
   type: "web_service",
   serviceDetails: {
+    repo: {
+      url: repoUrl,
+      branch: "main",
+      autoDeploy: true
+    },
     runtime: "node",
     buildCommand: "npm install",
     startCommand: "node server.js",
@@ -186,6 +191,7 @@ async function createRenderService(company, repoUrl, envVars, ownerId)
       }))
   }
 };
+
 
 
 console.log("🧪 Render Payload Preview:");
