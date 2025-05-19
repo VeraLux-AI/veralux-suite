@@ -167,16 +167,16 @@ async function createRenderService(company, repoUrl, envVars, ownerId)
     throw new Error("❌ Missing RENDER_API_KEY in .env");
   }
 
- const payload = {
+const payload = {
   name: `solomon-${company}`,
   ownerId,
   type: "web_service",
+  repo: {  // ✅ Must be at the top level
+    url: repoUrl,
+    branch: "main",
+    autoDeploy: true
+  },
   serviceDetails: {
-    repo: {
-      url: repoUrl,
-      branch: "main",
-      autoDeploy: true
-    },
     runtime: "node",
     buildCommand: "npm install",
     startCommand: "node server.js",
@@ -191,7 +191,6 @@ async function createRenderService(company, repoUrl, envVars, ownerId)
       }))
   }
 };
-
 
 
 console.log("🧪 Render Payload Preview:");
