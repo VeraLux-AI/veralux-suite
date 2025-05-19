@@ -225,7 +225,10 @@ async function createRenderService(company, repoUrl, envVars, ownerId)
   }
 
   console.log(`✅ Render service created: ${result.service.url}`);
-  return { serviceId: result.service.id, url: result.service.url };
+  const serviceId = result.service?.id;
+  const url = result.service?.url || result.url;
+  return { serviceId, url };
+
 }
 
 
