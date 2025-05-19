@@ -11,7 +11,7 @@ const TEMPLATE_DIR = './solomon-template';
 const OUTPUT_BASE = './provisioned';
 const GITHUB_ORG = 'VeraLux-AI'; // or your username/org
 const TEMPLATE_REPO_NAME = 'solomon-{{COMPANY_ID}}'; // becomes solomon-brightbuild
-const { Octokit } = require("@octokit/rest");
+const { Octokit } = await import("@octokit/rest");
 const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
 
 
