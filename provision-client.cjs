@@ -207,6 +207,8 @@ if (!res.ok) {
 console.log(`✅ Render service created: ${result.service.url}`);
 return { serviceId: result.service.id, url: result.service.url };
 
+}
+
 
 // === Write admin-config.json to provisioned deployment ===
 const configPath = path.join(targetDir, "admin", "admin-config.json");
