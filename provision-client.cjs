@@ -177,7 +177,7 @@ const payload = {
     autoDeploy: true
   },
   serviceDetails: {
-    runtime: "node",
+    runtimeEnvironment: "node",
     buildCommand: "npm install",
     startCommand: "node server.js",
     rootDir: ".",
