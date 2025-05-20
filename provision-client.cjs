@@ -166,16 +166,16 @@ async function createRenderService(company, repoUrl, envVars) {
     throw new Error("❌ Missing RENDER_API_KEY in .env");
   }
 
-  const ownerId = process.env.RENDER_OWNER_ID;  // ✅ Get ownerId from env
-  if (!ownerId) {
+  const ownerID = process.env.RENDER_OWNER_ID;  // ✅ Get ownerID from env
+  if (!ownerID) {
     throw new Error("❌ Missing RENDER_OWNER_ID in .env");
   }
 
-  console.log("👤 Render Owner ID:", ownerId);
+  console.log("👤 Render Owner ID:", ownerID);
 
 const payload = {
   name: `solomon-${company}`,
-  ownerId: ownerId, 
+  ownerID: ownerID, 
   type: "web_service",
   repo: {  // ✅ Must be at the top level
     url: repoUrl,
