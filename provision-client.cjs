@@ -208,7 +208,7 @@ const res = await fetch("https://api.render.com/v1/services", {
     "Authorization": `Bearer ${RENDER_API_KEY}`,
     "Content-Type": "application/json"
   },
- body: JSON.stringify(payload) // ✅ Correct
+  body: JSON.stringify(payload) // ✅ JUST the payload object
 });
 
 const result = await res.json();
