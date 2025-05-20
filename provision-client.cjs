@@ -171,6 +171,7 @@ async function createRenderService(company, repoUrl, envVars, ownerId)
    
 const payload = {
   name: `solomon-${company}`,
+  ownerId,
   type: "web_service",
   repo: {  // ✅ Must be at the top level
     url: repoUrl,
