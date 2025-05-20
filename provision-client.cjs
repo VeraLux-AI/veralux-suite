@@ -224,6 +224,22 @@ const payload = {
   }
 };
 
+  console.log("📦 Sending to Render:\n", JSON.stringify(payload, null, 2));
+
+try {
+  const res = await axios.post("https://api.render.com/v1/services", payload, {
+    headers: {
+      Authorization: `Bearer ${process.env.RENDER_API_KEY}`,
+      "Content-Type": "application/json"
+    }
+  });
+
+  console.log("✅ Render response:", res.data);
+} catch (err) {
+  console.error("❌ Render error:", err.response?.data || err.message);
+}
+
+
 
 
 
