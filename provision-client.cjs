@@ -49,7 +49,7 @@ const apiKey = createResult.apiKey;
 console.log(`🔐 API Key for ${id}: ${apiKey}`);
 
 const capId = id.charAt(0).toUpperCase() + id.slice(1);
-const repoName = `solomon-${id}`;
+const repoName = `veralux-${id}`;
 const targetDir = path.join(OUTPUT_BASE, repoName);
 
 fs.mkdirSync(OUTPUT_BASE, { recursive: true }); // ✅ Ensures 'provisioned/' exists
@@ -171,7 +171,7 @@ if (!ownerId) {
 }
 
 const payload = {
-  name: `solomon-${company}`,
+  name: `veralux-${company}`,
   ownerId, // ✅ Injected dynamically
   type: "web_service",
   repo: {
