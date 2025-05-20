@@ -1,15 +1,12 @@
-// provision-client.js
-// Usage: node provision-client.js --name brightbuild --color "#1A73E8" --accent "#174EA6"
 const path = require("path");
+const fs = require("fs");
+const { execSync } = require("child_process");
+const axios = require("axios");
 
-require('dotenv').config({ path: path.resolve(__dirname, '.env') });
- // ✅ Load environment variables from .env
+require("dotenv").config({ path: path.resolve(__dirname, ".env") });
 
 (async () => {
 
-const fs = require('fs');
-const path = require('path');
-const { execSync } = require('child_process');
 
 // === CONFIG ===
 const TEMPLATE_DIR = './solomon-template';
