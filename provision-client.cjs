@@ -201,9 +201,30 @@ const payload = {
     buildCommand: "npm install",
     startCommand: "node server.js",
     rootDir: ".",
-    region: "oregon"
-  },
-  environmentGroups: [process.env.RENDER_ENV_GROUP_ID]
+    region: "oregon",
+    envVars: [
+      {
+        key: "DEPLOYMENT_ID",
+        value: id
+      },
+      {
+        key: "CONFIG_API_KEY",
+        value: apiKey
+      },
+      {
+        key: "CONFIG_ENDPOINT",
+        value: "https://portal.veralux.ai/api/configs"
+      },
+      {
+        key: "USE_REMOTE_CONFIG",
+        value: "true"
+      },
+      {
+        key: "GDRIVE_FOLDER_ID",
+        value: process.env.GDRIVE_FOLDER_ID
+      }
+    ]
+  }
 };
 
 
