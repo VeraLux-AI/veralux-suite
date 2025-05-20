@@ -180,9 +180,13 @@ if (!repoUrl) {
 }
 
   
+if (!process.env.RENDER_ENV_GROUP_ID) {
+  throw new Error("❌ Missing RENDER_ENV_GROUP_ID in .env");
+}
+
 const payload = {
   name: `veralux-${company}`,
-  ownerId, // ✅ Injected dynamically
+  ownerId,
   type: "web_service",
   repo: {
     url: repoUrl,
@@ -194,15 +198,11 @@ const payload = {
     buildCommand: "npm install",
     startCommand: "node server.js",
     rootDir: ".",
-    region: "oregon",
-    envVars: Object.entries(envVars)
-      .filter(([_, value]) => value !== undefined)
-      .map(([key, value]) => ({
-        key,
-        value,
-      }))
-  }
+    region: "oregon"
+  },
+  environmentGroups: [process.env.RENDER_ENV_GROUP_ID]
 };
+
 
 
 
