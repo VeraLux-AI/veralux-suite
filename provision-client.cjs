@@ -203,10 +203,10 @@ console.log(JSON.stringify(payload, null, 2));
 const res = await fetch("https://api.render.com/v1/services", {
   method: "POST",
   headers: {
-    "Authorization": `Bearer ${RENDER_API_KEY}`,
-    "Content-Type": "application/json"
+    Authorization: `Bearer ${process.env.RENDER_API_KEY}`,
+    "Content-Type": "application/json",
   },
- body: JSON.stringify({ service: payload })  // ✅ correct
+  body: JSON.stringify(payload)  // ✅ Flattened payload
 });
 
 const result = await res.json();
