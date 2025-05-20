@@ -166,16 +166,14 @@ async function createRenderService(company, repoUrl, envVars) {
     throw new Error("❌ Missing RENDER_API_KEY in .env");
   }
 
-  const ownerId = process.env.RENDER_OWNER_ID;  // ✅ Get ownerId from env
-  if (!ownerId) {
-    throw new Error("❌ Missing RENDER_OWNER_ID in .env");
-  }
-
-  console.log("👤 Render Owner ID:", ownerID);
+  const ownerId = process.env.RENDER_OWNER_ID;
+if (!ownerId) {
+  throw new Error("❌ Missing RENDER_OWNER_ID in .env");
+}
 
 const payload = {
   name: `solomon-${company}`,
-  ownerId: "tea-cvisfjadbo4c739bq74g",
+  ownerId, // ✅ Injected dynamically
   type: "web_service",
   repo: {
     url: repoUrl,
@@ -197,6 +195,7 @@ const payload = {
       }))
   }
 };
+
 
 
 console.log("🧪 Render Payload Preview:");
