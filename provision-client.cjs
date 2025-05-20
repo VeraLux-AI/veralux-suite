@@ -145,7 +145,6 @@ try {
   console.error("❌ Render deployment failed:", err.message);
 }
 
-
 // === WRITE .env TO DEPLOYMENT ===
 const envPath = path.join(targetDir, '.env');
 const envVars = [
