@@ -240,35 +240,6 @@ try {
 }
 
 
-
-
-
-
-console.log("🧪 Render Payload Preview:");
-console.log(JSON.stringify(payload, null, 2));
-
-const res = await fetch("https://api.render.com/v1/services", {
-  method: "POST",
-  headers: {
-    Authorization: `Bearer ${process.env.RENDER_API_KEY}`,
-    "Content-Type": "application/json",
-  },
-  body: JSON.stringify(payload)  // ✅ Flattened payload
-});
-
-const result = await res.json();
-
-if (!res.ok) {
-  console.error("❌ Render service creation failed:", result);
-  throw new Error(result.message || "Unknown Render error");
-}
-
-console.log(`✅ Render service created: ${result.service.url}`);
-return { serviceId: result.service.id, url: result.service.url };
-
-}
-
-
 // === Write admin-config.json to provisioned deployment ===
 const configPath = path.join(targetDir, "admin", "admin-config.json");
 fs.mkdirSync(path.dirname(configPath), { recursive: true });
