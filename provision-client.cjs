@@ -1,6 +1,7 @@
 // provision-client.js
 // Usage: node provision-client.js --name brightbuild --color "#1A73E8" --accent "#174EA6"
-require('dotenv').config(); // ✅ Load environment variables from .env
+require('dotenv').config({ path: path.resolve(__dirname, '.env') });
+ // ✅ Load environment variables from .env
 
 (async () => {
 
