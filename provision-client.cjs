@@ -112,7 +112,7 @@ const envVarsObject = {
   CONFIG_API_KEY: apiKey,
   CONFIG_ENDPOINT: 'https://portal.veralux.ai/api/configs',
   USE_REMOTE_CONFIG: 'true',
-  GDRIVE_FOLDER_ID: process.env.GDRIVE_FOLDER_ID || 'REPLACE_THIS'
+  GDRIVE_FOLDER_ID: process.env.GDRIVE_FOLDER_ID 
 };
 
 const repoUrl = `https://github.com/${GITHUB_ORG}/${repoName}`;
