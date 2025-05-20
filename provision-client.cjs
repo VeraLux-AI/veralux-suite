@@ -170,6 +170,11 @@ if (!ownerId) {
   throw new Error("❌ Missing RENDER_OWNER_ID in .env");
 }
 
+if (!repoUrl) {
+  throw new Error("❌ repoUrl is undefined — cannot deploy to Render.");
+}
+
+  
 const payload = {
   name: `veralux-${company}`,
   ownerId, // ✅ Injected dynamically
