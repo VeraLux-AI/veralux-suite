@@ -238,7 +238,7 @@ try {
 } catch (err) {
   console.error("❌ Render error:", err.response?.data || err.message);
 }
-
+}
 
 // === Write admin-config.json to provisioned deployment ===
 const configPath = path.join(targetDir, "admin", "admin-config.json");
