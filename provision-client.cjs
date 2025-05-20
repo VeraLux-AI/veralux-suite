@@ -88,7 +88,26 @@ try {
     name: repoName,
     private: true
   });
-  console.log(`📡 Created GitHub repo: ${GITHUB_ORG}/${repoName}`);
+  
+// === CREATE RENDER KV STORE ===
+console.log("🗂️ Creating Render KV Store...");
+await fetch("https://api.render.com/v1/key-value", {
+  method: "POST",
+  headers: {
+    Authorization: `Bearer ${process.env.RENDER_API_KEY}`,
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify({
+    name: `veralux-${id}-kv`,
+    plan: "pro",
+    region: "oregon",
+    ownerId
+  })
+})
+  .then(res => res.json())
+  .then(data => console.log("✅ KV Store created:", data))
+  .catch(err => console.error("❌ KV Store error:", err.response?.data || err.message));
+console.log(`📡 Created GitHub repo: ${GITHUB_ORG}/${repoName}`);
 
   const remoteUrl = `https://${process.env.GITHUB_TOKEN}@github.com/${GITHUB_ORG}/${repoName}.git`;
 
@@ -335,4 +354,6 @@ fs.writeFileSync(configPath, JSON.stringify(
   }
 }, null, 2));
   })();
+
+
 
