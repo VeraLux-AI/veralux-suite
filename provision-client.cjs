@@ -193,10 +193,7 @@ const payload = {
     branch: "main",
     autoDeploy: true
   },
-  runtime: {
-    type: "node",
-    version: "18"  // you can set to "20" if needed
-  },
+  runtime: "node",  // you can set to "20" if needed
   buildCommand: "npm install",
   startCommand: "node server.js",
   region: "oregon",
