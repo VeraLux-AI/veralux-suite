@@ -5,16 +5,19 @@ require("dotenv").config();
   const payload = {
     name: "minimal-veralux-test",
     type: "web_service",
-    runtime: "node", // ✅ TOP LEVEL
     region: "oregon",
     ownerId: process.env.RENDER_OWNER_ID,
+    runtime: {
+      type: "node",
+      version: "18"     // ✅ must be in object format for web_service
+    },
     repo: {
       url: "https://github.com/render-examples/hello-node",
       branch: "main",
       autoDeploy: true
     },
-    buildCommand: "npm install",         // ✅ TOP LEVEL
-    startCommand: "node server.js",      // ✅ TOP LEVEL
+    buildCommand: "npm install",
+    startCommand: "node server.js",
     envVars: [
       { key: "MY_VAR", value: "test" }
     ]
@@ -35,3 +38,4 @@ require("dotenv").config();
     console.error("❌ ERROR:", err.response?.data || err.message);
   }
 })();
+
