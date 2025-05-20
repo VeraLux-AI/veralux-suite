@@ -193,35 +193,37 @@ const payload = {
     branch: "main",
     autoDeploy: true
   },
-  serviceDetails: {
-    runtimeEnvironment: "node",
-    buildCommand: "npm install",
-    startCommand: "node server.js",
-    rootDir: ".",
-    region: "oregon",
-    envVars: [
-      {
-        key: "DEPLOYMENT_ID",
-        value: id
-      },
-      {
-        key: "CONFIG_API_KEY",
-        value: apiKey
-      },
-      {
-        key: "CONFIG_ENDPOINT",
-        value: "https://portal.veralux.ai/api/configs"
-      },
-      {
-        key: "USE_REMOTE_CONFIG",
-        value: "true"
-      },
-      {
-        key: "GDRIVE_FOLDER_ID",
-        value: process.env.GDRIVE_FOLDER_ID
-      }
-    ]
-  }
+  runtime: {
+    type: "node",
+    version: "18"  // you can set to "20" if needed
+  },
+  buildCommand: "npm install",
+  startCommand: "node server.js",
+  rootDir: ".",
+  region: "oregon",
+  envVars: [
+    {
+      key: "DEPLOYMENT_ID",
+      value: id
+    },
+    {
+      key: "CONFIG_API_KEY",
+      value: apiKey
+    },
+    {
+      key: "CONFIG_ENDPOINT",
+      value: "https://portal.veralux.ai/api/configs"
+    },
+    {
+      key: "USE_REMOTE_CONFIG",
+      value: "true"
+    },
+    {
+      key: "GDRIVE_FOLDER_ID",
+      value: process.env.GDRIVE_FOLDER_ID
+    }
+  ],
+  environmentGroups: [process.env.RENDER_ENV_GROUP_ID]
 };
 
   console.log("📦 Sending to Render:\n", JSON.stringify(payload, null, 2));
@@ -235,9 +237,17 @@ try {
   });
 
   console.log("✅ Render response:", res.data);
+
+  // ✅ Return the info needed to save in deployments.json
+  return {
+    serviceId: res.data.id,
+    url: res.data.service?.url || `https://${res.data.name}.onrender.com`
+  };
 } catch (err) {
   console.error("❌ Render error:", err.response?.data || err.message);
+  throw err; // rethrow so upstream logic can handle failure
 }
+
 }
 
 // === Write admin-config.json to provisioned deployment ===
