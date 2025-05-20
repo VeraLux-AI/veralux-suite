@@ -202,14 +202,14 @@ const payload = {
 console.log("🧪 Render Payload Preview:");
 console.log(JSON.stringify(payload, null, 2));
 
-const res = await fetch("https://api.render.com/v1/services", {
+const res = await fetch("http://localhost:3000/admin/proxy-render-deploy", {
   method: "POST",
   headers: {
-    "Authorization": `Bearer ${RENDER_API_KEY}`,
     "Content-Type": "application/json"
   },
-  body: JSON.stringify({ service: payload }) // ✅ CORRECT
+  body: JSON.stringify(payload)
 });
+
 
 const result = await res.json();
 
