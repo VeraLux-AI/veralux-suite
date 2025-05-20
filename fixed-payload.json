@@ -5,7 +5,7 @@
   "runtime": "node",
   "region": "oregon",
   "repo": {
-    "repo": "render-examples/hello-node",
+    "url": "https://github.com/render-examples/hello-node",
     "branch": "main",
     "autoDeploy": true
   },
