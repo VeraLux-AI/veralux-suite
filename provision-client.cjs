@@ -199,7 +199,6 @@ const payload = {
   },
   buildCommand: "npm install",
   startCommand: "node server.js",
-  rootDir: ".",
   region: "oregon",
   envVars: [
     {
