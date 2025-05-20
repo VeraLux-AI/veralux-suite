@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: curl-minimal-test
+    runtime: node
+    region: oregon
+    plan: free
+    repo: https://github.com/render-examples/hello-node
+    branch: main
+    autoDeploy: true
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: MY_VAR
+        value: test
