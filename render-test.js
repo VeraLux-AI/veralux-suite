@@ -9,7 +9,7 @@ require("dotenv").config();
     region: "oregon",
     ownerId: process.env.RENDER_OWNER_ID,
     repo: {
-      url: "https://github.com/VeraLux-AI/veralux-suite",
+      url: "https://github.com/render-examples/hello-node",
       branch: "main",
       autoDeploy: true
     },
