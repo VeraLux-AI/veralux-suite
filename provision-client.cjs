@@ -200,7 +200,6 @@ const payload = {
       .map(([key, value]) => ({
         key,
         value,
-        isSecret: true
       }))
   }
 };
