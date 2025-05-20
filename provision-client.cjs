@@ -352,5 +352,6 @@ fs.writeFileSync(configPath, JSON.stringify(
     }
   }
 }, null, 2));
+}
   })();
 
