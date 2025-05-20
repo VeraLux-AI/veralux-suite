@@ -175,9 +175,9 @@ async function createRenderService(company, repoUrl, envVars) {
 
 const payload = {
   name: `solomon-${company}`,
-  ownerID: ownerID,
+  ownerId: process.env.RENDER_OWNER_ID, // ✅ Lowercase 'd' is required by Render
   type: "web_service",
-  repo: {  // ✅ Must be at the top level
+  repo: {
     url: repoUrl,
     branch: "main",
     autoDeploy: true
@@ -208,7 +208,7 @@ const res = await fetch("https://api.render.com/v1/services", {
     "Authorization": `Bearer ${RENDER_API_KEY}`,
     "Content-Type": "application/json"
   },
-  body: JSON.stringify({ service: payload }) // ✅ CORRECT
+ body: JSON.stringify(payload) // ✅ Correct
 });
 
 const result = await res.json();
