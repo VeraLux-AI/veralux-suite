@@ -3,25 +3,22 @@ require("dotenv").config();
 
 (async () => {
   const payload = {
-  name: "minimal-veralux-test",
-  type: "web_service",
-  region: "oregon",
-  ownerId: process.env.RENDER_OWNER_ID,
-  repo: {
-    url: "https://github.com/render-examples/hello-node",
-    branch: "main",
-    autoDeploy: true
-  },
-  serviceDetails: {
-    runtimeEnvironment: "node",
-    buildCommand: "npm install",
-    startCommand: "node server.js"
-  },
-  envVars: [
-    { key: "MY_VAR", value: "test" }
-  ]
-};
-
+    name: "minimal-veralux-test",
+    type: "web_service",
+    runtime: "node", // ✅ TOP LEVEL
+    region: "oregon",
+    ownerId: process.env.RENDER_OWNER_ID,
+    repo: {
+      url: "https://github.com/render-examples/hello-node",
+      branch: "main",
+      autoDeploy: true
+    },
+    buildCommand: "npm install",         // ✅ TOP LEVEL
+    startCommand: "node server.js",      // ✅ TOP LEVEL
+    envVars: [
+      { key: "MY_VAR", value: "test" }
+    ]
+  };
 
   console.log("📦 Payload:", JSON.stringify(payload, null, 2));
 
