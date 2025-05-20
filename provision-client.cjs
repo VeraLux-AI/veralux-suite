@@ -214,7 +214,8 @@ const payload = {
 };
 
 
-  console.log("📦 Sending to Render:\n", JSON.stringify(payload, null, 2));
+ console.log("📦 Final Payload:\n", JSON.stringify(payload, null, 2));
+
 
 try {
   const res = await axios.post("https://api.render.com/v1/services", payload, {
