@@ -175,7 +175,7 @@ async function createRenderService(company, repoUrl, envVars) {
 
 const payload = {
   name: `solomon-${company}`,
-  ownerId: process.env.RENDER_OWNER_ID, // ✅ Lowercase 'd' is required by Render
+  ownerId: tea-cvisfjadbo4c739bq74g,
   type: "web_service",
   repo: {
     url: repoUrl,
