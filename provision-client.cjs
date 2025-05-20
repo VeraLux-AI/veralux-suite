@@ -167,6 +167,8 @@ async function createRenderService(company, repoUrl, envVars, ownerId)
     throw new Error("❌ Missing RENDER_API_KEY in .env");
   }
 
+ console.log("👤 Render Owner ID:", ownerId);
+   
 const payload = {
   name: `solomon-${company}`,
   ownerID: ownerId,
