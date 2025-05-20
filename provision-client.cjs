@@ -166,8 +166,8 @@ async function createRenderService(company, repoUrl, envVars) {
     throw new Error("❌ Missing RENDER_API_KEY in .env");
   }
 
-  const ownerID = process.env.RENDER_OWNER_ID;  // ✅ Get ownerId from env
-  if (!ownerID) {
+  const ownerId = process.env.RENDER_OWNER_ID;  // ✅ Get ownerId from env
+  if (!ownerId) {
     throw new Error("❌ Missing RENDER_OWNER_ID in .env");
   }
 
