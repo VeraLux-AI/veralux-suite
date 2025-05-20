@@ -196,35 +196,36 @@ const payload = {
     branch: "main",
     autoDeploy: true
   },
-  serviceDetails: {
-    runtimeEnvironment: "node",
-    buildCommand: "npm install",
-    startCommand: "node server.js",
-    rootDir: ".",
-    region: "oregon",
-    envVars: [
-      {
-        key: "DEPLOYMENT_ID",
-        value: id
-      },
-      {
-        key: "CONFIG_API_KEY",
-        value: apiKey
-      },
-      {
-        key: "CONFIG_ENDPOINT",
-        value: "https://portal.veralux.ai/api/configs"
-      },
-      {
-        key: "USE_REMOTE_CONFIG",
-        value: "true"
-      },
-      {
-        key: "GDRIVE_FOLDER_ID",
-        value: process.env.GDRIVE_FOLDER_ID
-      }
-    ]
-  }
+  runtime: {
+    type: "node",
+    version: "18"
+  },
+  buildCommand: "npm install",
+  startCommand: "node server.js",
+  rootDir: ".",
+  region: "oregon",
+  envVars: [
+    {
+      key: "DEPLOYMENT_ID",
+      value: id
+    },
+    {
+      key: "CONFIG_API_KEY",
+      value: apiKey
+    },
+    {
+      key: "CONFIG_ENDPOINT",
+      value: "https://portal.veralux.ai/api/configs"
+    },
+    {
+      key: "USE_REMOTE_CONFIG",
+      value: "true"
+    },
+    {
+      key: "GDRIVE_FOLDER_ID",
+      value: process.env.GDRIVE_FOLDER_ID
+    }
+  ]
 };
 
 
