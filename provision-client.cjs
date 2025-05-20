@@ -147,6 +147,10 @@ try {
 
 // === WRITE .env TO DEPLOYMENT ===
 const envPath = path.join(targetDir, '.env');
+  if (!process.env.GDRIVE_FOLDER_ID) {
+  throw new Error("❌ GDRIVE_FOLDER_ID is missing from your .env file. Please set it before deploying.");
+}
+
 const envVars = [
   `DEPLOYMENT_ID=${id}`,
   `CONFIG_API_KEY=${apiKey}`,
