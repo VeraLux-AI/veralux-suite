@@ -1,1 +1,20 @@
-404: Not Found
+{
+  "name": "curl-minimal-test",
+  "type": "web_service",
+  "ownerId": "tea-cvisfjadbo4c739bq74g",
+  "runtime": "node",
+  "region": "oregon",
+  "repo": {
+    "repo": "render-examples/hello-node",
+    "branch": "main",
+    "autoDeploy": true
+  },
+  "buildCommand": "npm install",
+  "startCommand": "node server.js",
+  "envVars": [
+    {
+      "key": "MY_VAR",
+      "value": "test"
+    }
+  ]
+}
