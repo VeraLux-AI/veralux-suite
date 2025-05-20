@@ -5,7 +5,7 @@ const axios = require("axios");
 
 require("dotenv").config({ path: path.resolve(__dirname, ".env") });
 
-(async () => {
+(async () => 
 
 
 // === CONFIG ===
