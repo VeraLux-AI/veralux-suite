@@ -185,42 +185,34 @@ if (!process.env.RENDER_ENV_GROUP_ID) {
 }
 
 const payload = {
-  name: `veralux-${company}`,
-  ownerId,
-  type: "web_service",
+  name: `veralux-${company}`,            // ✅ required
+  type: "web_service",                   // ✅ required
+  runtime: "node",                       // ✅ must be top-level
+  region: "oregon",                      // ✅ required
+  ownerId,                               // ✅ required
+
   repo: {
     url: repoUrl,
     branch: "main",
     autoDeploy: true
   },
-  runtime: "node",  // you can set to "20" if needed
+
   buildCommand: "npm install",
   startCommand: "node server.js",
-  region: "oregon",
+
   envVars: [
-    {
-      key: "DEPLOYMENT_ID",
-      value: id
-    },
-    {
-      key: "CONFIG_API_KEY",
-      value: apiKey
-    },
-    {
-      key: "CONFIG_ENDPOINT",
-      value: "https://portal.veralux.ai/api/configs"
-    },
-    {
-      key: "USE_REMOTE_CONFIG",
-      value: "true"
-    },
-    {
-      key: "GDRIVE_FOLDER_ID",
-      value: process.env.GDRIVE_FOLDER_ID
-    }
+    { key: "DEPLOYMENT_ID", value: id },
+    { key: "CONFIG_API_KEY", value: apiKey },
+    { key: "CONFIG_ENDPOINT", value: "https://portal.veralux.ai/api/configs" },
+    { key: "USE_REMOTE_CONFIG", value: "true" },
+    { key: "GDRIVE_FOLDER_ID", value: process.env.GDRIVE_FOLDER_ID }
   ],
-  environmentGroups: [process.env.RENDER_ENV_GROUP_ID]
+
+  environmentGroups: [
+    process.env.RENDER_ENV_GROUP_ID
+  ]
 };
+
 
   console.log("📦 Sending to Render:\n", JSON.stringify(payload, null, 2));
 
