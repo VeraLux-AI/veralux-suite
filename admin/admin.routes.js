@@ -363,7 +363,8 @@ router.post('/proxy-render-deploy', async (req, res) => {
         "Authorization": `Bearer ${RENDER_API_KEY}`,
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({ service: payload })
+      body: JSON.stringify(payload)
+
     });
 
     const result = await renderRes.json();
