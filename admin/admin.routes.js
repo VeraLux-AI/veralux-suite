@@ -345,6 +345,42 @@ router.post('/extract-logo-colors', upload.single('logo'), async (req, res) => {
   }
 });
 
+// POST /admin/proxy-render-deploy
+router.post('/proxy-render-deploy', async (req, res) => {
+  try {
+    const RENDER_API_KEY = process.env.RENDER_API_KEY;
+    if (!RENDER_API_KEY) {
+      return res.status(500).json({ error: "Missing RENDER_API_KEY in server .env" });
+    }
+
+    const payload = req.body;
+    console.log("📦 Proxying Render Deploy with Payload:");
+    console.log(JSON.stringify(payload, null, 2));
+
+    const renderRes = await fetch("https://api.render.com/v1/services", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${RENDER_API_KEY}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ service: payload })
+    });
+
+    const result = await renderRes.json();
+
+    if (!renderRes.ok) {
+      console.error("❌ Render Proxy Deploy Failed:", result);
+      return res.status(500).json({ error: result.message || "Unknown Render error", result });
+    }
+
+    console.log(`✅ Render Proxy Deploy Success: ${result.service.url}`);
+    return res.json({ success: true, renderUrl: result.service.url, serviceId: result.service.id });
+
+  } catch (err) {
+    console.error("❌ Render Proxy Error:", err);
+    return res.status(500).json({ error: err.message });
+  }
+});
 
 module.exports = router;
 
