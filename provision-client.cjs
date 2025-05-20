@@ -90,25 +90,29 @@ try {
   });
   
 // === CREATE RENDER KV STORE ===
-console.log("🗂️ Creating Render KV Store...");
-await fetch("https://api.render.com/v1/key-value", {
-  method: "POST",
-  headers: {
-    Authorization: `Bearer ${process.env.RENDER_API_KEY}`,
-    "Content-Type": "application/json"
-  },
-  body: JSON.stringify({
-    name: `veralux-${id}-kv`,
-    plan: "pro",
-    region: "oregon",
-    ownerId
-  })
-})
-  .then(res => res.json())
-  .then(data => console.log("✅ KV Store created:", data))
-  .catch(err => console.error("❌ KV Store error:", err.response?.data || err.message));
-console.log(`📡 Created GitHub repo: ${GITHUB_ORG}/${repoName}`);
+const ownerId = process.env.RENDER_OWNER_ID;
+if (!ownerId) throw new Error("❌ Missing RENDER_OWNER_ID in .env");
 
+try {
+  console.log("🗂️ Creating Render KV Store...");
+  const kvRes = await fetch("https://api.render.com/v1/key-value", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${process.env.RENDER_API_KEY}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      name: `veralux-${id}-kv`,
+      plan: "pro",
+      region: "oregon",
+      ownerId
+    })
+  });
+
+  const kvData = await kvRes.json();
+  console.log("✅ KV Store created:", kvData);
+
+  console.log(`📡 Creating GitHub repo: ${GITHUB_ORG}/${repoName}`);
   const remoteUrl = `https://${process.env.GITHUB_TOKEN}@github.com/${GITHUB_ORG}/${repoName}.git`;
 
   execSync(`git init`, { cwd: targetDir });
@@ -121,8 +125,9 @@ console.log(`📡 Created GitHub repo: ${GITHUB_ORG}/${repoName}`);
   execSync(`git push -u origin main`, { cwd: targetDir });
 
   console.log(`✅ Repo pushed to GitHub: ${GITHUB_ORG}/${repoName}`);
+
 } catch (err) {
-  console.error("❌ GitHub push failed:", err.message);
+  console.error("❌ GitHub push or KV creation failed:", err.message);
 }
 
 // === RENDER DEPLOYMENT ===
