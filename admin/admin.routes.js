@@ -364,24 +364,43 @@ router.post('/proxy-render-deploy', async (req, res) => {
         "Content-Type": "application/json"
       },
       body: JSON.stringify(payload)
-
     });
 
-    const result = await renderRes.json();
+    const rawText = await renderRes.text(); // Get raw response body
+    console.log("📥 Raw Response Text from Render:");
+    console.log(rawText);
+
+    let result;
+    try {
+      result = JSON.parse(rawText);
+    } catch (e) {
+      result = { message: "Non-JSON response from Render", raw: rawText };
+    }
 
     if (!renderRes.ok) {
-      console.error("❌ Render Proxy Deploy Failed:", result);
-      return res.status(500).json({ error: result.message || "Unknown Render error", result });
+      console.error("❌ Render Proxy Deploy Failed:");
+      console.error("🔢 Status Code:", renderRes.status);
+      console.error("🧾 Parsed Error Message:", result.message);
+      return res.status(500).json({
+        error: result.message || "Unknown Render error",
+        status: renderRes.status,
+        raw: result
+      });
     }
 
     console.log(`✅ Render Proxy Deploy Success: ${result.service.url}`);
-    return res.json({ success: true, renderUrl: result.service.url, serviceId: result.service.id });
+    return res.json({
+      success: true,
+      renderUrl: result.service.url,
+      serviceId: result.service.id
+    });
 
   } catch (err) {
     console.error("❌ Render Proxy Error:", err);
     return res.status(500).json({ error: err.message });
   }
 });
+
 
 module.exports = router;
 
