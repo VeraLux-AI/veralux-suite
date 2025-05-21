@@ -98,7 +98,7 @@ app.get('/api/configs/:clientId', requireLogin, (req, res) => {
 
 
 // Start server
-const PORT = process.env.PORT || 3000;
+const port = parseInt(process.env.PORT, 10) || 10000;
 app.listen(PORT, () => {
   console.log(`✅ VeraLux Suite running at http://localhost:${PORT}`);
 });
