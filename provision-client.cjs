@@ -185,11 +185,11 @@ if (!process.env.RENDER_ENV_GROUP_ID) {
 }
 
 const payload = {
-  name: `veralux-${company}`,            // ✅ required
-  type: "web_service",                   // ✅ required
-  runtime: "node",                       // ✅ must be top-level
-  region: "oregon",                      // ✅ required
-  ownerId,                               // ✅ required
+  name: `veralux-${company}`,
+  type: "web_service",
+  runtime: "node",
+  region: "oregon",
+  ownerId, // from env
 
   repo: {
     url: repoUrl,
@@ -206,16 +206,12 @@ const payload = {
     { key: "CONFIG_ENDPOINT", value: "https://portal.veralux.ai/api/configs" },
     { key: "USE_REMOTE_CONFIG", value: "true" },
     { key: "GDRIVE_FOLDER_ID", value: process.env.GDRIVE_FOLDER_ID }
-  ],
-
-  environmentGroups: [
-    process.env.RENDER_ENV_GROUP_ID
   ]
 };
 
 
- console.log("📦 Final Payload:\n", JSON.stringify(payload, null, 2));
 
+ console.log("📦 Final Payload:\n", JSON.stringify(payload, null, 2));
 
 try {
   const res = await axios.post("https://api.render.com/v1/services", payload, {
@@ -225,7 +221,17 @@ try {
     }
   });
 
-  console.log("✅ Render response:", res.data);
+  console.log("✅ Render service created:", res.data);
+
+  return {
+    serviceId: res.data.id,
+    serviceName: res.data.name,
+    url: res.data.serviceDetails?.url || null
+  };
+} catch (err) {
+  console.error("❌ Render service creation failed:", err.response?.data || err.message);
+  throw err;
+}
 
   // ✅ Return the info needed to save in deployments.json
   return {
