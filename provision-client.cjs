@@ -56,8 +56,34 @@ fs.mkdirSync(OUTPUT_BASE, { recursive: true }); // ✅ Ensures 'provisioned/' ex
 
 
 // === COPY TEMPLATE ===
-console.log(`📁 Creating ${targetDir} from template...`);
+
 fs.cpSync(TEMPLATE_DIR, targetDir, { recursive: true });
+console.log(`📁 Creating ${targetDir} from template...`);
+
+// === PATCH render.yaml ===
+const yamlPath = path.join(targetDir, 'render.yaml');
+if (fs.existsSync(yamlPath)) {
+  let yamlText = fs.readFileSync(yamlPath, 'utf8');
+
+  yamlText = yamlText
+    .replace(/veralux-deployment/g, `veralux-${id}`)
+    .replace(/brightbuild-template/g, id)
+    .replace(/value: REPLACE_THIS/g, (match, offset, str) => {
+      if (str.includes("CONFIG_API_KEY")) {
+        return `value: ${apiKey}`;
+      }
+      if (str.includes("GDRIVE_FOLDER_ID")) {
+        return `value: ${process.env.GDRIVE_FOLDER_ID}`;
+      }
+      return match;
+    });
+
+  fs.writeFileSync(yamlPath, yamlText);
+  console.log(`✅ Patched render.yaml for deployment: ${yamlPath}`);
+} else {
+  console.warn(`⚠️ No render.yaml found in template to patch.`);
+}
+  
 
 // === APPLY REPLACEMENTS ===
 function replaceInFile(filePath) {
