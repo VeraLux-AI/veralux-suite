@@ -1,17 +1,24 @@
 services:
   - type: web
-    name: solomon
+    name: veralux-deployment       # 🔁 Replaced with veralux-${company}
     env: node
     plan: free
+    region: oregon
     buildCommand: npm install
     startCommand: node server.js
     rootDir: .
     envVars:
-      - key: PORT
-        value: 10000
+      - key: DEPLOYMENT_ID
+        value: brightbuild-template    # 🔁 Replaced with ${id}
+      - key: CONFIG_API_KEY
+        value: REPLACE_THIS            # 🔁 Replaced with apiKey
+      - key: CONFIG_ENDPOINT
+        value: https://portal.veralux.ai/api/configs
+      - key: USE_REMOTE_CONFIG
+        value: "true"
       - key: GDRIVE_FOLDER_ID
-        value: your-google-drive-folder-id
+        value: REPLACE_THIS            # 🔁 Replaced with process.env.GDRIVE_FOLDER_ID
       - key: STRIPE_SECRET_KEY
-        value: your-stripe-secret-key
+        value: REPLACE_THIS            # 🔁 Optional
       - key: OPENAI_API_KEY
-        value: your-openai-api-key
+        value: REPLACE_THIS            # 🔁 Optional
