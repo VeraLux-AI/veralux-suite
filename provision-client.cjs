@@ -233,17 +233,6 @@ try {
   throw err;
 }
 
-  // ✅ Return the info needed to save in deployments.json
-  return {
-    serviceId: res.data.id,
-    url: res.data.service?.url || `https://${res.data.name}.onrender.com`
-  };
-} catch (err) {
-  console.error("❌ Render error:", err.response?.data || err.message);
-  throw err; // rethrow so upstream logic can handle failure
-}
-
-}
 
 // === Write admin-config.json to provisioned deployment ===
 const configPath = path.join(targetDir, "admin", "admin-config.json");
